@@ -152,38 +152,21 @@
             font-family: Consolas, "Fira Code", "Courier New", monospace;
         }
 
-        .faq-question {
-            font-weight: 600;
-            color: var(--accent-color-2);
-            margin-top: 0.8rem;
-        }
-
-        hr {
-            border: none;
-            border-top: 1px solid rgba(155, 92, 255, 0.35);
-            margin: 2rem 0;
-        }
-
         footer {
             text-align: center;
             font-size: 0.8rem;
             color: var(--muted-text);
             padding: 1.4rem 1rem 1.8rem 1rem;
         }
-
-        @media (max-width: 768px) {
-            header { padding: 1.2rem 1.2rem 1rem 1.2rem; }
-            main { padding: 0 0.8rem; }
-            .card { padding: 1.4rem 1.3rem; }
-        }
     </style>
 </head>
+
 <body>
 
 <header>
     <h1>TP Nº2 – Filtres numériques</h1>
     <h2>Master 1 AII – USTHB</h2>
-    <p>Responsable : F. Achouri</p>
+    <p>Responsable : F. Achouri • Étudiant : DAHANE AHMED LAMINE</p>
 </header>
 
 <main>
@@ -194,7 +177,7 @@
         <p>
             Ce deuxième TP de traitement du signal est consacré à l’étude des <strong>filtres numériques</strong> à temps discret.
             Après avoir manipulé les signaux élémentaires, les séries de Fourier et la convolution dans le TP1, nous passons
-            ici à la modélisation, à l’analyse et à la synthèse de filtres RIF (Réponse Impulsionnelle Finie) et RII
+            ici à la modélisation, l’analyse et la synthèse de filtres RIF (Réponse Impulsionnelle Finie) et RII
             (Réponse Impulsionnelle Infinie).
         </p>
         <p>
@@ -210,7 +193,7 @@
             <li>Manipuler les signaux numériques de base \(\delta(n)\) et \(u(n)\).</li>
             <li>Construire la fonction de transfert \(H(z)\) à partir d’une équation récurrente.</li>
             <li>Analyser la stabilité d’un filtre à partir de la position de ses pôles dans le plan Z.</li>
-            <li> visualiser et interpréter les diagrammes de Bode numériques (module et phase).</li>
+            <li>Visualiser et interpréter le module et la phase de la réponse fréquentielle.</li>
             <li>Synthétiser des filtres passe-bas répondant à des spécifications fréquentielles données.</li>
         </ul>
     </section>
@@ -221,12 +204,8 @@
         <ul>
             <li><a href="#manip1"><span class="section-number">1.</span>Manipulation 1 – Signaux numériques \(\delta(n)\), \(u(n)\)</a></li>
             <li><a href="#manip2"><span class="section-number">2.</span>Manipulation 2 – Analyse de filtres RIF et RII</a></li>
-            <li><a href="#manip3"><span class="section-number">3.</span>Manipulation 3 – Synthèse de filtres passe-bas</a></li>
-            <li><a href="#demo"><span class="section-number">4.</span>Démonstrations et rappels théoriques</a></li>
-            <li><a href="#faq"><span class="section-number">5.</span>Questions fréquentes du TP</a></li>
-            <li><a href="#erreurs"><span class="section-number">6.</span>Erreurs MATLAB fréquentes et solutions</a></li>
-            <li><a href="#commentaire-prof"><span class="section-number">7.</span>Commentaire pédagogique pour le professeur</a></li>
-            <li><a href="#conclusion"><span class="section-number">8.</span>Conclusion générale</a></li>
+            <li><a href="#manip3"><span class="section-number">3.</span>Manipulation 3 – Synthèse de filtres passe-bas (RII et RIF)</a></li>
+            <li><a href="#conclusion"><span class="section-number">4.</span>Conclusion générale</a></li>
         </ul>
     </section>
 
@@ -235,14 +214,13 @@
         <h2><span class="section-number">1.</span>Manipulation 1 – Signaux numériques \(\delta(n)\) et \(u(n)\)</h2>
 
         <p>
-            Avant d’analyser des filtres, il est indispensable de maîtriser les signaux de base à temps discret :
-            l’impulsion de Dirac \(\delta(n)\) et l’échelon unitaire \(u(n)\), ainsi que leurs versions décalées.
-            Ces signaux servent de “briques élémentaires” pour décrire et exciter les systèmes.
+            L’énoncé demande d’écrire un script MATLAB permettant d’afficher les signaux numériques suivants :
+            \(\delta(n)\), \(\delta(n-1)\), \(u(n)\) et \(u(n-1)\), où \(\delta(n)\) et \(u(n)\) sont respectivement
+            l’impulsion de Dirac et l’échelon unitaire à temps discret.
         </p>
 
-        <h3>1.1 Script MATLAB – Génération de \(\delta(n)\), \(\delta(n-1)\), \(u(n)\), \(u(n-1)\)</h3>
+        <h3>1.1 Script MATLAB – Génération et affichage des signaux</h3>
 
-        <h4>Code MATLAB</h4>
         <pre><code>% Manipulation 1 : Signaux numériques delta(n), delta(n-1), u(n), u(n-1)
 
 clear all; close all; clc;
@@ -286,29 +264,29 @@ stem(n, u1, 'filled');
 grid on;
 title('u(n-1)');
 xlabel('n'); ylabel('Amplitude');
-</code></pre>
+        </code></pre>
 
-        <h4>Graphes interactifs – \(\delta(n)\), \(\delta(n-1)\), \(u(n)\), \(u(n-1)\)</h4>
+        <h3>1.2 Graphes interactifs – \(\delta(n)\), \(\delta(n-1)\), \(u(n)\), \(u(n-1)\)</h3>
+        <p>
+            Les graphiques suivants permettent de visualiser de manière interactive les signaux utilisés comme briques
+            de base pour exciter les filtres numériques.
+        </p>
+
         <div id="plot_delta"></div>
         <div id="plot_delta1"></div>
         <div id="plot_u"></div>
         <div id="plot_u1"></div>
 
-        <h4>Analyse pédagogique</h4>
-        <p>
-            L’impulsion de Dirac \(\delta(n)\) est à la base de l’analyse des systèmes linéaires invariants :
-            la réponse du filtre à \(\delta(n)\) définit sa <strong>réponse impulsionnelle</strong>, et donc son
-            comportement complet pour toute entrée (par convolution). L’échelon \(u(n)\) est obtenu en accumulant
-            les impulsions, et permet d’étudier la réponse en régime permanent d’un système.
-        </p>
+        <h3>1.3 Commentaires et observations</h3>
         <ul>
-            <li>\(\delta(n)\) isole la réponse “instantanée” du filtre.</li>
-            <li>\(u(n)\) permet de voir comment le filtre réagit à une entrée qui reste “activée” dans le temps.</li>
-            <li>Les décalages \(\delta(n-1)\) et \(u(n-1)\) introduisent des retards d’un échantillon.</li>
+            <li>\(\delta(n)\) est nul partout sauf en \(n = 0\), où il vaut 1. Il sert à définir la réponse impulsionnelle d’un filtre.</li>
+            <li>\(\delta(n-1)\) est simplement \(\delta(n)\) décalé d’un échantillon vers la droite (retard d’un pas).</li>
+            <li>\(u(n)\) vaut 0 pour \(n < 0\) et 1 pour \(n \ge 0\) : c’est la version discrète de l’échelon unitaire.</li>
+            <li>\(u(n-1)\) introduit un retard d’un échantillon pour le front de montée de l’échelon.</li>
         </ul>
         <p>
-            Cette manipulation prépare directement l’analyse de la réponse impulsionnelle des filtres RIF et RII
-            dans les manipulations suivantes.
+            Ces signaux serviront ensuite à analyser le comportement des filtres RIF et RII, notamment à travers leur
+            réponse impulsionnelle et leur réponse à un échelon.
         </p>
     </section>
 
@@ -317,34 +295,31 @@ xlabel('n'); ylabel('Amplitude');
         <h2><span class="section-number">2.</span>Manipulation 2 – Analyse de filtres RIF et RII</h2>
 
         <p>
-            Dans cette manipulation, on étudie d’abord un filtre numérique <strong>RIF</strong>
-            (Réponse Impulsionnelle Finie), puis un filtre <strong>RII</strong>
-            (Réponse Impulsionnelle Infinie) définis par des équations récurrentes. L’objectif
-            est de relier l’équation temporelle, la fonction de transfert \(H(z)\), la réponse
-            impulsionnelle \(h(n)\) et la réponse fréquentielle \(H(\omega)\).
+            Cette manipulation comporte deux parties :
         </p>
+        <ul>
+            <li><strong>2.1</strong> Analyse d’un filtre numérique RIF simple.</li>
+            <li><strong>2.2</strong> Analyse d’un filtre numérique RII d’ordre 2.</li>
+        </ul>
 
-        <!-- 2.1 Filtre RIF -->
+        <!-- 2.1 RIF -->
         <h3>2.1 Analyse d’un filtre numérique RIF</h3>
 
         <p>
-            Le filtre RIF étudié est défini par l’équation récurrente :
+            L’énoncé considère un filtre numérique de type RIF décrit par l’équation récurrente :
         </p>
-
         <p>
-
+            
 
 \[
-y(n) = 0{,}5\,x(n) + 0{,}5\,x(n-1)
-\]
+                y(n) = 0{,}5\,x(n) + 0{,}5\,x(n-1)
+            \]
 
 
         </p>
-
         <p>
-            Il s’agit d’un filtre <strong>passe-bas très simple</strong> : la sortie est la moyenne de l’échantillon
-            actuel et du précédent. On s’attend intuitivement à ce qu’il <strong>lisse</strong> le signal d’entrée
-            et atténue les hautes fréquences.
+            On reconnaît ici un filtre qui effectue la moyenne de l’échantillon courant et du précédent.
+            Intuitivement, il agit comme un <strong>filtre passe-bas lissant</strong>.
         </p>
 
         <h4>2.1.1 Fonction de transfert \(H(z)\)</h4>
@@ -352,12 +327,12 @@ y(n) = 0{,}5\,x(n) + 0{,}5\,x(n-1)
             En appliquant la transformée en Z (en supposant des conditions initiales nulles) :
         </p>
         <p>
-
+            
 
 \[
-Y(z) = 0{,}5\,X(z) + 0{,}5\,z^{-1}X(z)
-      = X(z)\left(0{,}5 + 0{,}5\,z^{-1}\right).
-\]
+            Y(z) = 0{,}5\,X(z) + 0{,}5\,z^{-1}X(z)
+                 = X(z)\left(0{,}5 + 0{,}5\,z^{-1}\right)
+            \]
 
 
         </p>
@@ -365,36 +340,32 @@ Y(z) = 0{,}5\,X(z) + 0{,}5\,z^{-1}X(z)
             La fonction de transfert est donc :
         </p>
         <p>
-
+            
 
 \[
-H(z) = \frac{Y(z)}{X(z)} = 0{,}5 + 0{,}5\,z^{-1}
-     = \frac{0{,}5z + 0{,}5}{z}.
-\]
+            H(z) = \frac{Y(z)}{X(z)} = 0{,}5 + 0{,}5\,z^{-1}
+                 = \frac{0{,}5z + 0{,}5}{z}
+            \]
 
 
         </p>
         <p>
-            Le numérateur est \(\,0{,}5z + 0{,}5\,\) et le dénominateur est \(z\), ce qui correspond à un
+            Le numérateur est \(0{,}5z + 0{,}5\) et le dénominateur est \(z\), ce qui correspond à un
             <strong>zéro en</strong> \(z = -1\) et un <strong>pôle en</strong> \(z = 0\).
         </p>
 
-        <h4>2.1.2 Script MATLAB – Fonction de transfert, réponse impulsionnelle, réponse fréquentielle</h4>
+        <h4>2.1.2 Script MATLAB – \(H(z)\), \(h(n)\), \(H(\omega)\), pôles et zéros</h4>
 
         <pre><code>% Manipulation 2.1 : Filtre RIF y(n) = 0.5 x(n) + 0.5 x(n-1)
 
 clear all; close all; clc;
 
-Fe = 8000;      % fréquence d'échantillonnage
+Fe = 8000;      % fréquence d'échantillonnage (Hz)
 N  = 512;       % nombre de points pour la réponse fréquentielle
 
 % Coefficients du filtre RIF (en z^-1)
 num = [0.5 0.5];   % numérateur H(z) = 0.5 + 0.5 z^{-1}
 den = [1];         % dénominateur (aucune rétroaction)
-
-% Fonction de transfert H(z) sous MATLAB
-% (on pourrait utiliser tf(num, den, 1/Fe) en commande LTI continue,
-% mais ici on reste dans le cadre z^-1 / freqz)
 
 % Réponse impulsionnelle h(n)
 [h, n] = impz(num, den, 50);   % 50 échantillons de h(n)
@@ -435,89 +406,69 @@ title('Phase de H(f)');
 figure;
 zplane(num, den);
 title('Pôles et zéros du filtre RIF');
-</code></pre>
+        </code></pre>
 
-        <h4>Graphes interactifs – Filtre RIF</h4>
+        <h4>2.1.3 Graphes interactifs – Filtre RIF</h4>
+        <p>
+            Les figures ci-dessous correspondent aux questions de l’énoncé : réponse impulsionnelle, réponse fréquentielle
+            (module et phase) et diagramme pôles–zéros.
+        </p>
+
         <div id="plot_h_rif"></div>
         <div id="plot_H_rif_mag"></div>
         <div id="plot_H_rif_phase"></div>
         <div id="plot_pz_rif"></div>
 
-        <h4>Analyse théorique et stabilité</h4>
+        <h4>2.1.4 Commentaires sur la stabilité et l’interprétation fréquentielle</h4>
         <p>
-            La fonction de transfert
-
+            La réponse impulsionnelle du filtre est donnée par :
+        </p>
+        <p>
+            
 
 \[
-H(z) = 0{,}5 + 0{,}5 z^{-1}
-\]
+            h(0) = 0{,}5,\quad h(1) = 0{,}5,\quad h(n) = 0 \text{ pour } n \ge 2
+            \]
 
 
-            correspond à un <strong>filtre RIF d’ordre 1</strong> sans rétroaction (le dénominateur vaut 1).
-            Cela signifie que la réponse impulsionnelle \(h(n)\) est <strong>finie</strong> dans le temps.
         </p>
         <p>
-            En réponse à \(\delta(n)\), on obtient :
-        </p>
-        <ul>
-            <li>\(h(0) = 0{,}5\)</li>
-            <li>\(h(1) = 0{,}5\)</li>
-            <li>\(h(n) = 0\) pour \(n \ge 2\)</li>
-        </ul>
-        <p>
-            La réponse impulsionnelle se réduit à deux échantillons non nuls. Le filtre est donc :
-        </p>
-        <ul>
-            <li><strong>RIF</strong> (Réponse Impulsionnelle Finie)</li>
-            <li><strong>Stable</strong> (la somme des valeurs de h(n) est finie)</li>
-            <li>Passif : il réalise une moyenne sur deux échantillons, ce qui <strong>lisse</strong> le signal.</li>
-        </p>
-
-        <h4>Interprétation fréquentielle</h4>
-        <p>
-            La réponse fréquentielle s’obtient en remplaçant \(z = e^{j\omega}\) :
+            La réponse impulsionnelle est donc de durée finie : le filtre est <strong>RIF</strong> (Réponse Impulsionnelle Finie)
+            et par définition <strong>stable</strong> (la somme des valeurs absolues de \(h(n)\) est finie).
         </p>
         <p>
-
+            La réponse fréquentielle s’écrit en remplaçant \(z = e^{j\omega}\) :
+        </p>
+        <p>
+            
 
 \[
-H(e^{j\omega}) = 0{,}5 + 0{,}5 e^{-j\omega}
-               = 0{,}5(1 + e^{-j\omega})
-               = 0{,}5 \cdot 2\cos\left(\frac{\omega}{2}\right)e^{-j\omega/2}.
-\]
+            H(e^{j\omega}) = 0{,}5 + 0{,}5 e^{-j\omega}
+                           = 0{,}5(1 + e^{-j\omega})
+                           = \cos\left(\frac{\omega}{2}\right) e^{-j\omega/2}
+            \]
 
 
         </p>
         <p>
-            On en déduit :
+            Le module vaut donc \(|H(e^{j\omega})| = |\cos(\omega/2)|\), maximal pour \(\omega = 0\) (fréquence nulle, composante continue)
+            et nul pour \(\omega = \pi\) (fréquence de Nyquist). Ce comportement est typique d’un <strong>filtre passe-bas</strong>.
+        </p>
+        <p>
+            Le diagramme pôles–zéros montre :
         </p>
         <ul>
-            <li><strong>Module</strong> : \(|H(e^{j\omega})| = |\cos(\omega/2)|\) → maximum à \(\omega = 0\), nul à \(\omega = \pi\).</li>
-            <li><strong>Phase</strong> : essentiellement une pente linéaire liée au terme \(e^{-j\omega/2}\) (retard de groupe).</li>
+            <li>un <strong>zéro</strong> en \(z = -1\), responsable de l’annulation du gain à haute fréquence ;</li>
+            <li>un <strong>pôle</strong> en \(z = 0\), situé à l’intérieur du cercle unité, ce qui confirme la stabilité.</li>
         </ul>
         <p>
-            Ce comportement est typique d’un <strong>filtre passe-bas</strong> très simple :
-            les basses fréquences (variations lentes) sont transmises, tandis que les hautes fréquences
-            (variations rapides, bruit) sont atténuées.
-        </p>
-
-        <h4>Analyse des pôles et zéros</h4>
-        <p>
-            Le filtre possède :
-        </p>
-        <ul>
-            <li>un <strong>zéro</strong> en \(z = -1\) (annulation en \(\omega = \pi\), soit fréquence de Nyquist),</li>
-            <li>un <strong>pôle</strong> en \(z = 0\) (dans le disque unité).</li>
-        </ul>
-        <p>
-            La présence du zéro sur le cercle unité en \(-1\) explique l’annulation du gain à haute fréquence.
-            Comme il n’y a <strong>aucun pôle en dehors du cercle unité</strong>, le filtre est
-            <strong>inconditionnellement stable</strong>.
+            On peut donc conclure que ce filtre est un <strong>moyenneur stable</strong>, qui lisse les signaux en atténuant
+            les composantes rapides tout en conservant les variations lentes.
         </p>
 
     </section>
 
-    <!-- Les sections suivantes (2.2 filtre RII, 3, 4, 5, 6, 7, 8) seront ajoutées ensuite -->
+    <!-- 👉 PARTIE 2/3 : 2.2 Filtre RII viendra ici dans le prochain message -->
 
 </main>
 
@@ -525,9 +476,9 @@ H(e^{j\omega}) = 0{,}5 + 0{,}5 e^{-j\omega}
     TP Nº2 – Filtres numériques • Master 1 AII – USTHB • DAHANE AHMED LAMINE
 </footer>
 
-<!-- ===================== SCRIPTS PLOTLY (déjà fonctionnels pour la partie 1) ===================== -->
+<!-- ===================== SCRIPTS PLOTLY – PARTIE 1 (Manip 1 + 2.1) ===================== -->
 <script>
-// ==================== Manipulation 1 : signaux numériques ====================
+// ---------- Manipulation 1 : signaux numériques ----------
 var n_disc = [];
 for (let k = -5; k <= 5; k++) { n_disc.push(k); }
 
@@ -539,7 +490,7 @@ Plotly.newPlot('plot_delta', [{
     type: 'bar',
     marker: {color: '#9b5cff'}
 }], {
-    title: {text: 'Impulsion de Dirac \u03B4(n)', font: {color: '#00f0ff'}},
+    title: {text: 'Impulsion de Dirac \\u03B4(n)', font: {color: '#00f0ff'}},
     paper_bgcolor: 'rgba(0,0,0,0)',
     plot_bgcolor: 'rgba(0,0,0,0)',
     font: {color: '#ffffff'},
@@ -555,7 +506,7 @@ Plotly.newPlot('plot_delta1', [{
     type: 'bar',
     marker: {color: '#00f0ff'}
 }], {
-    title: {text: 'Impulsion décalée \u03B4(n-1)', font: {color: '#00f0ff'}},
+    title: {text: 'Impulsion décalée \\u03B4(n-1)', font: {color: '#00f0ff'}},
     paper_bgcolor: 'rgba(0,0,0,0)',
     plot_bgcolor: 'rgba(0,0,0,0)',
     font: {color: '#ffffff'},
@@ -595,12 +546,11 @@ Plotly.newPlot('plot_u1', [{
     yaxis: {title: 'Amplitude', range: [0, 1.2]}
 });
 
-// ==================== Manipulation 2.1 : Filtre RIF ====================
-// Réponse impulsionnelle h(n) = [0.5, 0.5]
-var n_h = [0, 1];
+// ---------- Manipulation 2.1 : Filtre RIF ----------
+var n_h_rif = [0, 1];
 var h_rif = [0.5, 0.5];
 Plotly.newPlot('plot_h_rif', [{
-    x: n_h,
+    x: n_h_rif,
     y: h_rif,
     type: 'bar',
     marker: {color: '#9b5cff'}
@@ -613,26 +563,27 @@ Plotly.newPlot('plot_h_rif', [{
     yaxis: {title: 'h(n)', range: [0, 0.6]}
 });
 
-// Réponse fréquentielle H(e^{jω}) pour RIF : |cos(ω/2)|
-var Fe = 8000;
-var Nf = 512;
-var f = [];
-var Hmag = [];
-var Hphase = [];
-for (let k = 0; k < Nf; k++) {
-    let fk = (Fe/2) * k / (Nf - 1);  // 0 → Fe/2
-    let omega = 2*Math.PI*fk/Fe;
+// Réponse fréquentielle H(e^{jω}) pour RIF : H = 0.5 + 0.5 e^{-jω}
+var Fe_rif = 8000;
+var Nf_rif = 512;
+var f_rif = [];
+var Hmag_rif = [];
+var Hphase_rif = [];
+for (let k = 0; k < Nf_rif; k++) {
+    let fk = (Fe_rif/2) * k / (Nf_rif - 1);
+    let omega = 2*Math.PI*fk/Fe_rif;
     let Re = 0.5 + 0.5*Math.cos(-omega);
     let Im = 0.5*Math.sin(-omega);
     let Hc = Math.sqrt(Re*Re + Im*Im);
     let ph = Math.atan2(Im, Re);
-    f.push(fk);
-    Hmag.push(20*Math.log10(Hc + 1e-12));
-    Hphase.push(ph);
+    f_rif.push(fk);
+    Hmag_rif.push(20*Math.log10(Hc + 1e-12));
+    Hphase_rif.push(ph);
 }
+
 Plotly.newPlot('plot_H_rif_mag', [{
-    x: f,
-    y: Hmag,
+    x: f_rif,
+    y: Hmag_rif,
     type: 'scatter',
     mode: 'lines',
     line: {color: '#9b5cff', width: 3}
@@ -646,8 +597,8 @@ Plotly.newPlot('plot_H_rif_mag', [{
 });
 
 Plotly.newPlot('plot_H_rif_phase', [{
-    x: f,
-    y: Hphase,
+    x: f_rif,
+    y: Hphase_rif,
     type: 'scatter',
     mode: 'lines',
     line: {color: '#00f0ff', width: 3}
@@ -661,41 +612,39 @@ Plotly.newPlot('plot_H_rif_phase', [{
 });
 
 // Pôles et zéros du filtre RIF
-// num = [0.5, 0.5] -> zéro en z = -1
-// den = [1]        -> pas de pôle propre (en dehors de l'origine du modèle z^-1)
-var pz_theta = [];
-var pz_xc = [];
-var pz_yc = [];
+var pz_theta_rif = [];
+var pz_xc_rif = [];
+var pz_yc_rif = [];
 for (let k = 0; k <= 360; k++) {
     let th = k*Math.PI/180;
-    pz_theta.push(th);
-    pz_xc.push(Math.cos(th));
-    pz_yc.push(Math.sin(th));
+    pz_theta_rif.push(th);
+    pz_xc_rif.push(Math.cos(th));
+    pz_yc_rif.push(Math.sin(th));
 }
-var zero_x = [-1];
-var zero_y = [0];
-var pole_x = [0];   // on représente le pôle à l'origine (z=0)
-var pole_y = [0];
+var zero_x_rif = [-1];
+var zero_y_rif = [0];
+var pole_x_rif = [0];
+var pole_y_rif = [0];
 
 Plotly.newPlot('plot_pz_rif', [
     {
-        x: pz_xc,
-        y: pz_yc,
+        x: pz_xc_rif,
+        y: pz_yc_rif,
         type: 'scatter',
         mode: 'lines',
         line: {color: 'rgba(255,255,255,0.25)', width: 1},
         name: 'Cercle unité'
     },
     {
-        x: zero_x,
-        y: zero_y,
+        x: zero_x_rif,
+        y: zero_y_rif,
         mode: 'markers',
         marker: {color: '#00f0ff', size: 10, symbol: 'circle-open'},
         name: 'Zéros'
     },
     {
-        x: pole_x,
-        y: pole_y,
+        x: pole_x_rif,
+        y: pole_y_rif,
         mode: 'markers',
         marker: {color: '#ff3366', size: 10, symbol: 'x'},
         name: 'Pôles'
@@ -714,3 +663,179 @@ Plotly.newPlot('plot_pz_rif', [
 
 </body>
 </html>
+        <p>
+            On peut donc conclure que ce filtre est un <strong>moyenneur stable</strong>, qui lisse les signaux en atténuant
+            les composantes rapides tout en conservant les variations lentes.
+        </p>
+
+    </section>
+
+        <!-- 2.2 RII -->
+    <h3>2.2 Analyse d’un filtre numérique RII</h3>
+
+    <p>
+        Dans cette partie, nous analysons un filtre numérique de type <strong>RII</strong> (Réponse Impulsionnelle Infinie)
+        décrit par l’équation récurrente suivante :
+    </p>
+    <p>
+        
+
+\[
+        y(n) = 0{,}0422\,x(n) + 0{,}0843\,x(n-1) + 1{,}3993\,y(n-1) - 0{,}5779\,y(n-2)
+        \]
+
+
+    </p>
+    <p>
+        Ce filtre présente une <strong>rétroaction</strong> (présence des termes en \(y(n-1)\) et \(y(n-2)\)), ce qui le
+        distingue du filtre RIF précédent. Sa réponse impulsionnelle est en général de durée infinie, d’où l’appellation RII.
+    </p>
+
+    <h4>2.2.1 Fonction de transfert \(H(z)\)</h4>
+    <p>
+        En appliquant la transformée en Z à l’équation récurrente (conditions initiales nulles) :
+    </p>
+    <p>
+        
+
+\[
+        Y(z) = 0{,}0422 X(z) + 0{,}0843 z^{-1} X(z) + 1{,}3993 z^{-1} Y(z) - 0{,}5779 z^{-2} Y(z)
+        \]
+
+
+    </p>
+    <p>
+        En regroupant les termes en \(Y(z)\) d’un côté :
+    </p>
+    <p>
+        
+
+\[
+        Y(z)\left(1 - 1{,}3993 z^{-1} + 0{,}5779 z^{-2} \right)
+        = X(z)\left(0{,}0422 + 0{,}0843 z^{-1}\right)
+        \]
+
+
+    </p>
+    <p>
+        La fonction de transfert est donc :
+    </p>
+    <p>
+        
+
+\[
+        H(z) = \frac{Y(z)}{X(z)} = 
+        \frac{0{,}0422 + 0{,}0843 z^{-1}}{1 - 1{,}3993 z^{-1} + 0{,}5779 z^{-2}}
+        \]
+
+
+    </p>
+    <p>
+        Le filtre possède ici un <strong>numérateur</strong> de degré 1 (en \(z^{-1}\)) et un <strong>dénominateur</strong> de degré 2,
+        ce qui correspond à un filtre RII d’<strong>ordre 2</strong>.
+    </p>
+
+    <h4>2.2.2 Script MATLAB – \(H(z)\), \(h(n)\), \(H(\omega)\), pôles et zéros</h4>
+
+    <pre><code>% Manipulation 2.2 : Filtre RII
+% y(n) = 0.0422 x(n) + 0.0843 x(n-1) + 1.3993 y(n-1) - 0.5779 y(n-2)
+
+clear all; close all; clc;
+
+Fe = 8000;      % fréquence d'échantillonnage (Hz)
+N  = 512;       % nombre de points pour la réponse fréquentielle
+
+% Coefficients du filtre RII (en z^-1)
+num = [0.0422 0.0843];
+den = [1 -1.3993 0.5779];
+
+% Réponse impulsionnelle h(n)
+[h, n] = impz(num, den, 100);   % 100 échantillons pour observer l'évolution
+
+% Réponse fréquentielle H(w)
+[H, f] = freqz(num, den, N, Fe);   % H(f) sur [0, Fe/2]
+
+% Module et phase
+amp   = abs(H);          % module
+phase = angle(H);        % phase en radians
+
+% Pôles et zéros
+zeros_z = roots(num);
+poles_z = roots(den);
+
+% Affichages MATLAB
+figure;
+stem(n, h, 'filled');
+grid on;
+title('Réponse impulsionnelle h(n) du filtre RII');
+xlabel('n'); ylabel('h(n)');
+
+figure;
+subplot(2,1,1);
+plot(f, 20*log10(amp));
+grid on;
+xlabel('Fréquence (Hz)');
+ylabel('|H(f)| en dB');
+title('Module de la réponse fréquentielle H(f)');
+
+subplot(2,1,2);
+plot(f, phase);
+grid on;
+xlabel('Fréquence (Hz)');
+ylabel('Phase (rad)');
+title('Phase de H(f)');
+
+figure;
+zplane(num, den);
+title('Pôles et zéros du filtre RII');
+    </code></pre>
+
+    <h4>2.2.3 Graphes interactifs – Filtre RII</h4>
+    <p>
+        Comme pour le cas RIF, nous représentons ici de manière interactive :
+    </p>
+    <ul>
+        <li>la réponse impulsionnelle \(h(n)\),</li>
+        <li>le module de la réponse fréquentielle \(|H(f)|\) en dB,</li>
+        <li>la phase de \(H(f)\),</li>
+        <li>le diagramme des pôles et des zéros dans le plan Z.</li>
+    </ul>
+
+    <div id="plot_h_rii"></div>
+    <div id="plot_H_rii_mag"></div>
+    <div id="plot_H_rii_phase"></div>
+    <div id="plot_pz_rii"></div>
+
+    <h4>2.2.4 Commentaires sur la stabilité et l’interprétation fréquentielle</h4>
+    <p>
+        La stabilité d’un filtre RII se détermine à partir de la position de ses <strong>pôles</strong> dans le plan Z :
+        le filtre est <strong>stable</strong> si et seulement si tous les pôles se trouvent <strong>à l’intérieur du cercle unité</strong>.
+    </p>
+    <p>
+        En calculant les racines du dénominateur :
+    </p>
+    <p>
+        
+
+\[
+        1 - 1{,}3993 z^{-1} + 0{,}5779 z^{-2} = 0
+        \quad\Longleftrightarrow\quad
+        z^{2} - 1{,}3993 z + 0{,}5779 = 0
+        \]
+
+
+    </p>
+    <p>
+        on trouve deux pôles complexes conjugués dont le module est strictement inférieur à 1. Ainsi, le filtre est
+        <strong>asymptotiquement stable</strong> : sa réponse impulsionnelle décroît et reste bornée.
+    </p>
+    <p>
+        La réponse fréquentielle obtenue par <code>freqz</code> montre un comportement de type <strong>passe-bas</strong> :
+        le gain est élevé dans la zone des basses fréquences et atténué dans les hautes fréquences. La phase présente
+        une variation non linéaire, typique des filtres RII.
+    </p>
+    <p>
+        Comparé au filtre RIF précédent, ce filtre RII permet d’obtenir des spécifications fréquentielles plus sélectives
+        avec un ordre relativement faible, au prix d’une structure avec rétroaction et d’une phase moins linéaire.
+    </p>
+
