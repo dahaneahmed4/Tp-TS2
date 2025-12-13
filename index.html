@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>TP Nº2 – Filtres numériques | Master 1 AII – USTHB</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Police Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- MathJax pour équations -->
+    <script>
+        window.MathJax = {
+            tex: {inlineMath: [['\\(', '\\)'], ['$', '$']]}
+        };
+    </script>
+    <script id="MathJax-script" async
+            src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+
+    <!-- Plotly.js pour graphiques interactifs -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #050914;
+            --bg-gradient: radial-gradient(circle at top, #2f1363 0, #050914 55%, #02030a 100%);
+            --accent-color: #9b5cff;
+            --accent-color-2: #00f0ff;
+            --accent-soft: rgba(155, 92, 255, 0.18);
+            --text-color: #e5e9ff;
+            --muted-text: #9aa4d4;
+            --card-bg: rgba(8, 13, 33, 0.9);
+            --code-bg: #050816;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            line-height: 1.7;
+            margin: 0;
+            padding: 0;
+            color: var(--text-color);
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+        }
+
+        header {
+            padding: 1.8rem 2rem 1.4rem 2rem;
+            background: linear-gradient(120deg, rgba(5, 9, 20, 0.95), rgba(35, 12, 88, 0.95));
+            border-bottom: 1px solid rgba(155, 92, 255, 0.4);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        header h1 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 1.6rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        header h2 {
+            margin: 0.2rem 0 0.4rem 0;
+            font-weight: 400;
+            font-size: 0.95rem;
+            color: var(--muted-text);
+        }
+
+        header p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--muted-text);
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 2rem auto 3rem auto;
+            padding: 0 1.2rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 1.8rem 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(155, 92, 255, 0.25);
+            box-shadow: 0 18px 40px rgba(0,0,0,0.7);
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 1.3rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        h3 {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-top: 1.4rem;
+        }
+
+        h4 {
+            font-size: 1rem;
+            font-weight: 500;
+            margin-top: 1rem;
+        }
+
+        p, li {
+            font-size: 0.95rem;
+        }
+
+        ul { padding-left: 1.2rem; }
+
+        .section-number {
+            color: var(--accent-color-2);
+            font-weight: 600;
+            margin-right: 0.4rem;
+        }
+
+        .toc {
+            background: radial-gradient(circle at top left, rgba(155, 92, 255, 0.22), rgba(5, 9, 20, 0.95));
+            border-radius: 16px;
+            padding: 1.4rem 1.6rem;
+            border: 1px solid rgba(155, 92, 255, 0.45);
+        }
+
+        .toc a {
+            color: var(--accent-color-2);
+            text-decoration: none;
+        }
+
+        .toc a:hover { text-decoration: underline; }
+
+        pre {
+            background: var(--code-bg);
+            color: #eaeaea;
+            padding: 0.9rem 1rem;
+            border-radius: 10px;
+            overflow-x: auto;
+            font-size: 0.85rem;
+            border: 1px solid rgba(0, 240, 255, 0.28);
+        }
+
+        code {
+            font-family: Consolas, "Fira Code", "Courier New", monospace;
+        }
+
+        .faq-question {
+            font-weight: 600;
+            color: var(--accent-color-2);
+            margin-top: 0.8rem;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid rgba(155, 92, 255, 0.35);
+            margin: 2rem 0;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--muted-text);
+            padding: 1.4rem 1rem 1.8rem 1rem;
+        }
+
+        @media (max-width: 768px) {
+            header { padding: 1.2rem 1.2rem 1rem 1.2rem; }
+            main { padding: 0 0.8rem; }
+            .card { padding: 1.4rem 1.3rem; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>TP Nº2 – Filtres numériques</h1>
+    <h2>Master 1 AII – USTHB</h2>
+    <p>Responsable : F. Achouri</p>
+</header>
+
+<main>
+
+    <!-- 0. Introduction -->
+    <section id="introduction" class="card">
+        <h2><span class="section-number">0.</span>Introduction générale</h2>
+        <p>
+            Ce deuxième TP de traitement du signal est consacré à l’étude des <strong>filtres numériques</strong> à temps discret.
+            Après avoir manipulé les signaux élémentaires, les séries de Fourier et la convolution dans le TP1, nous passons
+            ici à la modélisation, à l’analyse et à la synthèse de filtres RIF (Réponse Impulsionnelle Finie) et RII
+            (Réponse Impulsionnelle Infinie).
+        </p>
+        <p>
+            Un filtre numérique est décrit soit par une <strong>équation récurrente</strong> dans le domaine temporel,
+            soit par une <strong>fonction de transfert</strong> \(H(z)\) dans le domaine de Z. L’objectif de ce TP est de
+            relier ces représentations, d’analyser la <strong>stabilité</strong> via les pôles, et d’étudier les
+            <strong>réponses impulsionnelles</strong> et <strong>réponses fréquentielles</strong>.
+        </p>
+        <p>
+            Les objectifs pédagogiques sont :
+        </p>
+        <ul>
+            <li>Manipuler les signaux numériques de base \(\delta(n)\) et \(u(n)\).</li>
+            <li>Construire la fonction de transfert \(H(z)\) à partir d’une équation récurrente.</li>
+            <li>Analyser la stabilité d’un filtre à partir de la position de ses pôles dans le plan Z.</li>
+            <li> visualiser et interpréter les diagrammes de Bode numériques (module et phase).</li>
+            <li>Synthétiser des filtres passe-bas répondant à des spécifications fréquentielles données.</li>
+        </ul>
+    </section>
+
+    <!-- Plan -->
+    <section class="card toc">
+        <h3>Plan du document</h3>
+        <ul>
+            <li><a href="#manip1"><span class="section-number">1.</span>Manipulation 1 – Signaux numériques \(\delta(n)\), \(u(n)\)</a></li>
+            <li><a href="#manip2"><span class="section-number">2.</span>Manipulation 2 – Analyse de filtres RIF et RII</a></li>
+            <li><a href="#manip3"><span class="section-number">3.</span>Manipulation 3 – Synthèse de filtres passe-bas</a></li>
+            <li><a href="#demo"><span class="section-number">4.</span>Démonstrations et rappels théoriques</a></li>
+            <li><a href="#faq"><span class="section-number">5.</span>Questions fréquentes du TP</a></li>
+            <li><a href="#erreurs"><span class="section-number">6.</span>Erreurs MATLAB fréquentes et solutions</a></li>
+            <li><a href="#commentaire-prof"><span class="section-number">7.</span>Commentaire pédagogique pour le professeur</a></li>
+            <li><a href="#conclusion"><span class="section-number">8.</span>Conclusion générale</a></li>
+        </ul>
+    </section>
+
+    <!-- 1. Manipulation 1 -->
+    <section id="manip1" class="card">
+        <h2><span class="section-number">1.</span>Manipulation 1 – Signaux numériques \(\delta(n)\) et \(u(n)\)</h2>
+
+        <p>
+            Avant d’analyser des filtres, il est indispensable de maîtriser les signaux de base à temps discret :
+            l’impulsion de Dirac \(\delta(n)\) et l’échelon unitaire \(u(n)\), ainsi que leurs versions décalées.
+            Ces signaux servent de “briques élémentaires” pour décrire et exciter les systèmes.
+        </p>
+
+        <h3>1.1 Script MATLAB – Génération de \(\delta(n)\), \(\delta(n-1)\), \(u(n)\), \(u(n-1)\)</h3>
+
+        <h4>Code MATLAB</h4>
+        <pre><code>% Manipulation 1 : Signaux numériques delta(n), delta(n-1), u(n), u(n-1)
+
+clear all; close all; clc;
+
+% Axe des instants discrets
+n = -5:5;
+
+% Impulsion de Dirac delta(n)
+delta = (n == 0);
+
+% Impulsion décalée delta(n-1)
+delta1 = (n == 1);
+
+% Échelon unitaire u(n)
+u = (n >= 0);
+
+% Échelon décalé u(n-1)
+u1 = (n >= 1);
+
+figure(1);
+subplot(2,2,1);
+stem(n, delta, 'filled');
+grid on;
+title('\delta(n)');
+xlabel('n'); ylabel('Amplitude');
+
+subplot(2,2,2);
+stem(n, delta1, 'filled');
+grid on;
+title('\delta(n-1)');
+xlabel('n'); ylabel('Amplitude');
+
+subplot(2,2,3);
+stem(n, u, 'filled');
+grid on;
+title('u(n)');
+xlabel('n'); ylabel('Amplitude');
+
+subplot(2,2,4);
+stem(n, u1, 'filled');
+grid on;
+title('u(n-1)');
+xlabel('n'); ylabel('Amplitude');
+</code></pre>
+
+        <h4>Graphes interactifs – \(\delta(n)\), \(\delta(n-1)\), \(u(n)\), \(u(n-1)\)</h4>
+        <div id="plot_delta"></div>
+        <div id="plot_delta1"></div>
+        <div id="plot_u"></div>
+        <div id="plot_u1"></div>
+
+        <h4>Analyse pédagogique</h4>
+        <p>
+            L’impulsion de Dirac \(\delta(n)\) est à la base de l’analyse des systèmes linéaires invariants :
+            la réponse du filtre à \(\delta(n)\) définit sa <strong>réponse impulsionnelle</strong>, et donc son
+            comportement complet pour toute entrée (par convolution). L’échelon \(u(n)\) est obtenu en accumulant
+            les impulsions, et permet d’étudier la réponse en régime permanent d’un système.
+        </p>
+        <ul>
+            <li>\(\delta(n)\) isole la réponse “instantanée” du filtre.</li>
+            <li>\(u(n)\) permet de voir comment le filtre réagit à une entrée qui reste “activée” dans le temps.</li>
+            <li>Les décalages \(\delta(n-1)\) et \(u(n-1)\) introduisent des retards d’un échantillon.</li>
+        </ul>
+        <p>
+            Cette manipulation prépare directement l’analyse de la réponse impulsionnelle des filtres RIF et RII
+            dans les manipulations suivantes.
+        </p>
+    </section>
+
+    <!-- 2. Manipulation 2 – Analyse de filtres RIF et RII -->
+    <section id="manip2" class="card">
+        <h2><span class="section-number">2.</span>Manipulation 2 – Analyse de filtres RIF et RII</h2>
+
+        <p>
+            Dans cette manipulation, on étudie d’abord un filtre numérique <strong>RIF</strong>
+            (Réponse Impulsionnelle Finie), puis un filtre <strong>RII</strong>
+            (Réponse Impulsionnelle Infinie) définis par des équations récurrentes. L’objectif
+            est de relier l’équation temporelle, la fonction de transfert \(H(z)\), la réponse
+            impulsionnelle \(h(n)\) et la réponse fréquentielle \(H(\omega)\).
+        </p>
+
+        <!-- 2.1 Filtre RIF -->
+        <h3>2.1 Analyse d’un filtre numérique RIF</h3>
+
+        <p>
+            Le filtre RIF étudié est défini par l’équation récurrente :
+        </p>
+
+        <p>
+
+
+\[
+y(n) = 0{,}5\,x(n) + 0{,}5\,x(n-1)
+\]
+
+
+        </p>
+
+        <p>
+            Il s’agit d’un filtre <strong>passe-bas très simple</strong> : la sortie est la moyenne de l’échantillon
+            actuel et du précédent. On s’attend intuitivement à ce qu’il <strong>lisse</strong> le signal d’entrée
+            et atténue les hautes fréquences.
+        </p>
+
+        <h4>2.1.1 Fonction de transfert \(H(z)\)</h4>
+        <p>
+            En appliquant la transformée en Z (en supposant des conditions initiales nulles) :
+        </p>
+        <p>
+
+
+\[
+Y(z) = 0{,}5\,X(z) + 0{,}5\,z^{-1}X(z)
+      = X(z)\left(0{,}5 + 0{,}5\,z^{-1}\right).
+\]
+
+
+        </p>
+        <p>
+            La fonction de transfert est donc :
+        </p>
+        <p>
+
+
+\[
+H(z) = \frac{Y(z)}{X(z)} = 0{,}5 + 0{,}5\,z^{-1}
+     = \frac{0{,}5z + 0{,}5}{z}.
+\]
+
+
+        </p>
+        <p>
+            Le numérateur est \(\,0{,}5z + 0{,}5\,\) et le dénominateur est \(z\), ce qui correspond à un
+            <strong>zéro en</strong> \(z = -1\) et un <strong>pôle en</strong> \(z = 0\).
+        </p>
+
+        <h4>2.1.2 Script MATLAB – Fonction de transfert, réponse impulsionnelle, réponse fréquentielle</h4>
+
+        <pre><code>% Manipulation 2.1 : Filtre RIF y(n) = 0.5 x(n) + 0.5 x(n-1)
+
+clear all; close all; clc;
+
+Fe = 8000;      % fréquence d'échantillonnage
+N  = 512;       % nombre de points pour la réponse fréquentielle
+
+% Coefficients du filtre RIF (en z^-1)
+num = [0.5 0.5];   % numérateur H(z) = 0.5 + 0.5 z^{-1}
+den = [1];         % dénominateur (aucune rétroaction)
+
+% Fonction de transfert H(z) sous MATLAB
+% (on pourrait utiliser tf(num, den, 1/Fe) en commande LTI continue,
+% mais ici on reste dans le cadre z^-1 / freqz)
+
+% Réponse impulsionnelle h(n)
+[h, n] = impz(num, den, 50);   % 50 échantillons de h(n)
+
+% Réponse fréquentielle H(w)
+[H, f] = freqz(num, den, N, Fe);   % H(f) sur [0, Fe/2]
+
+% Module et phase
+amp   = abs(H);          % module
+phase = angle(H);        % phase en radians
+
+% Pôles et zéros
+zeros_z = roots(num);
+poles_z = roots(den);
+
+% Affichages MATLAB classiques
+figure;
+stem(n, h, 'filled');
+grid on;
+title('Réponse impulsionnelle h(n) du filtre RIF');
+xlabel('n'); ylabel('h(n)');
+
+figure;
+subplot(2,1,1);
+plot(f, 20*log10(amp));
+grid on;
+xlabel('Fréquence (Hz)');
+ylabel('|H(f)| en dB');
+title('Module de la réponse fréquentielle H(f)');
+
+subplot(2,1,2);
+plot(f, phase);
+grid on;
+xlabel('Fréquence (Hz)');
+ylabel('Phase (rad)');
+title('Phase de H(f)');
+
+figure;
+zplane(num, den);
+title('Pôles et zéros du filtre RIF');
+</code></pre>
+
+        <h4>Graphes interactifs – Filtre RIF</h4>
+        <div id="plot_h_rif"></div>
+        <div id="plot_H_rif_mag"></div>
+        <div id="plot_H_rif_phase"></div>
+        <div id="plot_pz_rif"></div>
+
+        <h4>Analyse théorique et stabilité</h4>
+        <p>
+            La fonction de transfert
+
+
+\[
+H(z) = 0{,}5 + 0{,}5 z^{-1}
+\]
+
+
+            correspond à un <strong>filtre RIF d’ordre 1</strong> sans rétroaction (le dénominateur vaut 1).
+            Cela signifie que la réponse impulsionnelle \(h(n)\) est <strong>finie</strong> dans le temps.
+        </p>
+        <p>
+            En réponse à \(\delta(n)\), on obtient :
+        </p>
+        <ul>
+            <li>\(h(0) = 0{,}5\)</li>
+            <li>\(h(1) = 0{,}5\)</li>
+            <li>\(h(n) = 0\) pour \(n \ge 2\)</li>
+        </ul>
+        <p>
+            La réponse impulsionnelle se réduit à deux échantillons non nuls. Le filtre est donc :
+        </p>
+        <ul>
+            <li><strong>RIF</strong> (Réponse Impulsionnelle Finie)</li>
+            <li><strong>Stable</strong> (la somme des valeurs de h(n) est finie)</li>
+            <li>Passif : il réalise une moyenne sur deux échantillons, ce qui <strong>lisse</strong> le signal.</li>
+        </p>
+
+        <h4>Interprétation fréquentielle</h4>
+        <p>
+            La réponse fréquentielle s’obtient en remplaçant \(z = e^{j\omega}\) :
+        </p>
+        <p>
+
+
+\[
+H(e^{j\omega}) = 0{,}5 + 0{,}5 e^{-j\omega}
+               = 0{,}5(1 + e^{-j\omega})
+               = 0{,}5 \cdot 2\cos\left(\frac{\omega}{2}\right)e^{-j\omega/2}.
+\]
+
+
+        </p>
+        <p>
+            On en déduit :
+        </p>
+        <ul>
+            <li><strong>Module</strong> : \(|H(e^{j\omega})| = |\cos(\omega/2)|\) → maximum à \(\omega = 0\), nul à \(\omega = \pi\).</li>
+            <li><strong>Phase</strong> : essentiellement une pente linéaire liée au terme \(e^{-j\omega/2}\) (retard de groupe).</li>
+        </ul>
+        <p>
+            Ce comportement est typique d’un <strong>filtre passe-bas</strong> très simple :
+            les basses fréquences (variations lentes) sont transmises, tandis que les hautes fréquences
+            (variations rapides, bruit) sont atténuées.
+        </p>
+
+        <h4>Analyse des pôles et zéros</h4>
+        <p>
+            Le filtre possède :
+        </p>
+        <ul>
+            <li>un <strong>zéro</strong> en \(z = -1\) (annulation en \(\omega = \pi\), soit fréquence de Nyquist),</li>
+            <li>un <strong>pôle</strong> en \(z = 0\) (dans le disque unité).</li>
+        </ul>
+        <p>
+            La présence du zéro sur le cercle unité en \(-1\) explique l’annulation du gain à haute fréquence.
+            Comme il n’y a <strong>aucun pôle en dehors du cercle unité</strong>, le filtre est
+            <strong>inconditionnellement stable</strong>.
+        </p>
+
+    </section>
+
+    <!-- Les sections suivantes (2.2 filtre RII, 3, 4, 5, 6, 7, 8) seront ajoutées ensuite -->
+
+</main>
+
+<footer>
+    TP Nº2 – Filtres numériques • Master 1 AII – USTHB • DAHANE AHMED LAMINE
+</footer>
+
+<!-- ===================== SCRIPTS PLOTLY (déjà fonctionnels pour la partie 1) ===================== -->
+<script>
+// ==================== Manipulation 1 : signaux numériques ====================
+var n_disc = [];
+for (let k = -5; k <= 5; k++) { n_disc.push(k); }
+
+// delta(n)
+var delta = n_disc.map(k => (k === 0 ? 1 : 0));
+Plotly.newPlot('plot_delta', [{
+    x: n_disc,
+    y: delta,
+    type: 'bar',
+    marker: {color: '#9b5cff'}
+}], {
+    title: {text: 'Impulsion de Dirac \u03B4(n)', font: {color: '#00f0ff'}},
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    font: {color: '#ffffff'},
+    xaxis: {title: 'n', dtick: 1},
+    yaxis: {title: 'Amplitude', range: [0, 1.2]}
+});
+
+// delta(n-1)
+var delta1 = n_disc.map(k => (k === 1 ? 1 : 0));
+Plotly.newPlot('plot_delta1', [{
+    x: n_disc,
+    y: delta1,
+    type: 'bar',
+    marker: {color: '#00f0ff'}
+}], {
+    title: {text: 'Impulsion décalée \u03B4(n-1)', font: {color: '#00f0ff'}},
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    font: {color: '#ffffff'},
+    xaxis: {title: 'n', dtick: 1},
+    yaxis: {title: 'Amplitude', range: [0, 1.2]}
+});
+
+// u(n)
+var u = n_disc.map(k => (k >= 0 ? 1 : 0));
+Plotly.newPlot('plot_u', [{
+    x: n_disc,
+    y: u,
+    type: 'bar',
+    marker: {color: '#9b5cff'}
+}], {
+    title: {text: 'Échelon unitaire u(n)', font: {color: '#00f0ff'}},
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    font: {color: '#ffffff'},
+    xaxis: {title: 'n', dtick: 1},
+    yaxis: {title: 'Amplitude', range: [0, 1.2]}
+});
+
+// u(n-1)
+var u1 = n_disc.map(k => (k >= 1 ? 1 : 0));
+Plotly.newPlot('plot_u1', [{
+    x: n_disc,
+    y: u1,
+    type: 'bar',
+    marker: {color: '#00f0ff'}
+}], {
+    title: {text: 'Échelon décalé u(n-1)', font: {color: '#00f0ff'}},
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    font: {color: '#ffffff'},
+    xaxis: {title: 'n', dtick: 1},
+    yaxis: {title: 'Amplitude', range: [0, 1.2]}
+});
+
+// ==================== Manipulation 2.1 : Filtre RIF ====================
+// Réponse impulsionnelle h(n) = [0.5, 0.5]
+var n_h = [0, 1];
+var h_rif = [0.5, 0.5];
+Plotly.newPlot('plot_h_rif', [{
+    x: n_h,
+    y: h_rif,
+    type: 'bar',
+    marker: {color: '#9b5cff'}
+}], {
+    title: {text: 'Réponse impulsionnelle h(n) du filtre RIF', font: {color: '#00f0ff'}},
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    font: {color: '#ffffff'},
+    xaxis: {title: 'n', dtick: 1},
+    yaxis: {title: 'h(n)', range: [0, 0.6]}
+});
+
+// Réponse fréquentielle H(e^{jω}) pour RIF : |cos(ω/2)|
+var Fe = 8000;
+var Nf = 512;
+var f = [];
+var Hmag = [];
+var Hphase = [];
+for (let k = 0; k < Nf; k++) {
+    let fk = (Fe/2) * k / (Nf - 1);  // 0 → Fe/2
+    let omega = 2*Math.PI*fk/Fe;
+    let Re = 0.5 + 0.5*Math.cos(-omega);
+    let Im = 0.5*Math.sin(-omega);
+    let Hc = Math.sqrt(Re*Re + Im*Im);
+    let ph = Math.atan2(Im, Re);
+    f.push(fk);
+    Hmag.push(20*Math.log10(Hc + 1e-12));
+    Hphase.push(ph);
+}
+Plotly.newPlot('plot_H_rif_mag', [{
+    x: f,
+    y: Hmag,
+    type: 'scatter',
+    mode: 'lines',
+    line: {color: '#9b5cff', width: 3}
+}], {
+    title: {text: 'Module de H(f) du filtre RIF (dB)', font: {color: '#00f0ff'}},
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    font: {color: '#ffffff'},
+    xaxis: {title: 'Fréquence (Hz)'},
+    yaxis: {title: '|H(f)| (dB)'}
+});
+
+Plotly.newPlot('plot_H_rif_phase', [{
+    x: f,
+    y: Hphase,
+    type: 'scatter',
+    mode: 'lines',
+    line: {color: '#00f0ff', width: 3}
+}], {
+    title: {text: 'Phase de H(f) du filtre RIF', font: {color: '#00f0ff'}},
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    font: {color: '#ffffff'},
+    xaxis: {title: 'Fréquence (Hz)'},
+    yaxis: {title: 'Phase (rad)'}
+});
+
+// Pôles et zéros du filtre RIF
+// num = [0.5, 0.5] -> zéro en z = -1
+// den = [1]        -> pas de pôle propre (en dehors de l'origine du modèle z^-1)
+var pz_theta = [];
+var pz_xc = [];
+var pz_yc = [];
+for (let k = 0; k <= 360; k++) {
+    let th = k*Math.PI/180;
+    pz_theta.push(th);
+    pz_xc.push(Math.cos(th));
+    pz_yc.push(Math.sin(th));
+}
+var zero_x = [-1];
+var zero_y = [0];
+var pole_x = [0];   // on représente le pôle à l'origine (z=0)
+var pole_y = [0];
+
+Plotly.newPlot('plot_pz_rif', [
+    {
+        x: pz_xc,
+        y: pz_yc,
+        type: 'scatter',
+        mode: 'lines',
+        line: {color: 'rgba(255,255,255,0.25)', width: 1},
+        name: 'Cercle unité'
+    },
+    {
+        x: zero_x,
+        y: zero_y,
+        mode: 'markers',
+        marker: {color: '#00f0ff', size: 10, symbol: 'circle-open'},
+        name: 'Zéros'
+    },
+    {
+        x: pole_x,
+        y: pole_y,
+        mode: 'markers',
+        marker: {color: '#ff3366', size: 10, symbol: 'x'},
+        name: 'Pôles'
+    }
+], {
+    title: {text: 'Pôles et zéros du filtre RIF', font: {color: '#00f0ff'}},
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    font: {color: '#ffffff'},
+    xaxis: {title: 'Re(z)', range: [-1.5, 1.5]},
+    yaxis: {title: 'Im(z)', range: [-1.5, 1.5]},
+    showlegend: true,
+    aspectratio: {x:1, y:1}
+});
+</script>
+
+</body>
+</html>
