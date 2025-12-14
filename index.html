@@ -267,45 +267,16 @@ title('u(n-1)');
 xlabel('n'); ylabel('Amplitude');
         </code></pre>
 
-       <h3>1.2 Graphes – δ(n), δ(n−1), u(n), u(n−1)</h3>
+        <h3>1.2 Graphes interactifs – \(\delta(n)\), \(\delta(n-1)\), \(u(n)\), \(u(n-1)\)</h3>
         <p>
             Les graphiques suivants permettent de visualiser de manière interactive les signaux utilisés comme briques
             de base pour exciter les filtres numériques.
         </p>
 
-        <!-- δ(n) -->
-<svg width="500" height="200">
-  <line x1="0" y1="150" x2="500" y2="150" stroke="black" />
-  <line x1="250" y1="150" x2="250" y2="50" stroke="black" stroke-width="4" />
-  <circle cx="250" cy="50" r="5" fill="black" />
-  <text x="240" y="170" font-size="14">0</text>
-  <text x="10" y="20" font-size="18">δ(n)</text>
-</svg>
-
-<!-- δ(n−1) -->
-<svg width="500" height="200">
-  <line x1="0" y1="150" x2="500" y2="150" stroke="black" />
-  <line x1="300" y1="150" x2="300" y2="50" stroke="black" stroke-width="4" />
-  <circle cx="300" cy="50" r="5" fill="black" />
-  <text x="290" y="170" font-size="14">1</text>
-  <text x="10" y="20" font-size="18">δ(n−1)</text>
-</svg>
-
-<!-- u(n) -->
-<svg width="500" height="200">
-  <line x1="0" y1="150" x2="500" y2="150" stroke="black" />
-  <rect x="250" y="50" width="250" height="100" fill="black" />
-  <text x="240" y="170" font-size="14">0</text>
-  <text x="10" y="20" font-size="18">u(n)</text>
-</svg>
-
-<!-- u(n−1) -->
-<svg width="500" height="200">
-  <line x1="0" y1="150" x2="500" y2="150" stroke="black" />
-  <rect x="300" y="50" width="200" height="100" fill="black" />
-  <text x="290" y="170" font-size="14">1</text>
-  <text x="10" y="20" font-size="18">u(n−1)</text>
-</svg>
+        <div id="plot_delta"></div>
+        <div id="plot_delta1"></div>
+        <div id="plot_u"></div>
+        <div id="plot_u1"></div>
 
         <h3>1.3 Commentaires et observations</h3>
         <ul>
@@ -444,10 +415,10 @@ title('Pôles et zéros du filtre RIF');
             (module et phase) et diagramme pôles–zéros.
         </p>
 
-        <img src="images/rif_impulsion.png" alt="Impulsion RIF">
-        <img src="images/rif_module.png" alt="Module RIF">
-        <img src="images/rif_phase.png" alt="Phase RIF">
-        <img src="images/rif_pz.png" alt="Pôles et zéros RIF">
+        <div id="plot_h_rif"></div>
+        <div id="plot_H_rif_mag"></div>
+        <div id="plot_H_rif_phase"></div>
+        <div id="plot_pz_rif"></div>
 
         <h4>2.1.4 Commentaires sur la stabilité et l’interprétation fréquentielle</h4>
         <p>
@@ -631,11 +602,10 @@ title('Pôles et zéros du filtre RII');
         <li>le diagramme des pôles et des zéros dans le plan Z.</li>
     </ul>
 
-
-     <img src="images/rii_impulsion.png" alt="Impulsion RII">
-     <img src="images/rii_module.png" alt="Module RII">
-     <img src="images/rii_phase.png" alt="Phase RII">
-     <img src="images/rii_pz.png" alt="Pôles et zéros RII">
+    <div id="plot_h_rii"></div>
+    <div id="plot_H_rii_mag"></div>
+    <div id="plot_H_rii_phase"></div>
+    <div id="plot_pz_rii"></div>
 
     <h4>2.2.4 Commentaires sur la stabilité et l’interprétation fréquentielle</h4>
     <p>
@@ -781,14 +751,8 @@ ampB = 20*log10(abs(HB));
 ampC = 20*log10(abs(HC));
         </code></pre>
 
-<h4>3.1.2 Tracé et interprétation des réponses fréquentielles</h4>
-
-<p>
-    Le graphique suivant compare les réponses fréquentielles des filtres de Butterworth et de Tchebychev.
-</p>
-
-<!-- Image statique du graphe -->
-<img src="images/rii_compare.png" alt="Comparaison Butterworth vs Tchebychev" style="width:100%;max-width:700px;">
+        <h4>3.1.2 Tracé et interprétation des réponses fréquentielles</h4>
+         <div id="plot_RII_compare"></div>
 
 
         <p>
@@ -902,8 +866,7 @@ legend('show');
         </code></pre>
 
         <h4>3.2.3 Visualisation, influence de l’ordre et choix d’un ordre minimal</h4>
-         <img src="images/fir_multi.png" alt="FIR multi-ordres">
-
+         <div id="plot_RIF_multi"></div>
 
         <p>
             Les courbes obtenues pour différents ordres \(N\) montrent clairement que :
@@ -1443,3 +1406,4 @@ Plotly.newPlot('plot_RIF_multi', traces, {
 
 </body>
 </html>   
+
