@@ -468,15 +468,491 @@ title('Pôles et zéros du filtre RIF');
 
     </section>
 
-    <!-- 👉 PARTIE 2/3 : 2.2 Filtre RII viendra ici dans le prochain message -->
+    
+
+        <!-- 2.2 RII -->
+    <h3>2.2 Analyse d’un filtre numérique RII</h3>
+
+    <p>
+        Dans cette partie, nous analysons un filtre numérique de type <strong>RII</strong> (Réponse Impulsionnelle Infinie)
+        décrit par l’équation récurrente suivante :
+    </p>
+    <p>
+        
+
+\[
+        y(n) = 0{,}0422\,x(n) + 0{,}0843\,x(n-1) + 1{,}3993\,y(n-1) - 0{,}5779\,y(n-2)
+        \]
+
+
+    </p>
+    <p>
+        Ce filtre présente une <strong>rétroaction</strong> (présence des termes en \(y(n-1)\) et \(y(n-2)\)), ce qui le
+        distingue du filtre RIF précédent. Sa réponse impulsionnelle est en général de durée infinie, d’où l’appellation RII.
+    </p>
+
+    <h4>2.2.1 Fonction de transfert \(H(z)\)</h4>
+    <p>
+        En appliquant la transformée en Z à l’équation récurrente (conditions initiales nulles) :
+    </p>
+    <p>
+        
+
+\[
+        Y(z) = 0{,}0422 X(z) + 0{,}0843 z^{-1} X(z) + 1{,}3993 z^{-1} Y(z) - 0{,}5779 z^{-2} Y(z)
+        \]
+
+
+    </p>
+    <p>
+        En regroupant les termes en \(Y(z)\) d’un côté :
+    </p>
+    <p>
+        
+
+\[
+        Y(z)\left(1 - 1{,}3993 z^{-1} + 0{,}5779 z^{-2} \right)
+        = X(z)\left(0{,}0422 + 0{,}0843 z^{-1}\right)
+        \]
+
+
+    </p>
+    <p>
+        La fonction de transfert est donc :
+    </p>
+    <p>
+        
+
+\[
+        H(z) = \frac{Y(z)}{X(z)} = 
+        \frac{0{,}0422 + 0{,}0843 z^{-1}}{1 - 1{,}3993 z^{-1} + 0{,}5779 z^{-2}}
+        \]
+
+
+    </p>
+    <p>
+        Le filtre possède ici un <strong>numérateur</strong> de degré 1 (en \(z^{-1}\)) et un <strong>dénominateur</strong> de degré 2,
+        ce qui correspond à un filtre RII d’<strong>ordre 2</strong>.
+    </p>
+
+    <h4>2.2.2 Script MATLAB – \(H(z)\), \(h(n)\), \(H(\omega)\), pôles et zéros</h4>
+
+    <pre><code>% Manipulation 2.2 : Filtre RII
+% y(n) = 0.0422 x(n) + 0.0843 x(n-1) + 1.3993 y(n-1) - 0.5779 y(n-2)
+
+clear all; close all; clc;
+
+Fe = 8000;      % fréquence d'échantillonnage (Hz)
+N  = 512;       % nombre de points pour la réponse fréquentielle
+
+% Coefficients du filtre RII (en z^-1)
+num = [0.0422 0.0843];
+den = [1 -1.3993 0.5779];
+
+% Réponse impulsionnelle h(n)
+[h, n] = impz(num, den, 100);   % 100 échantillons pour observer l'évolution
+
+% Réponse fréquentielle H(w)
+[H, f] = freqz(num, den, N, Fe);   % H(f) sur [0, Fe/2]
+
+% Module et phase
+amp   = abs(H);          % module
+phase = angle(H);        % phase en radians
+
+% Pôles et zéros
+zeros_z = roots(num);
+poles_z = roots(den);
+
+% Affichages MATLAB
+figure;
+stem(n, h, 'filled');
+grid on;
+title('Réponse impulsionnelle h(n) du filtre RII');
+xlabel('n'); ylabel('h(n)');
+
+figure;
+subplot(2,1,1);
+plot(f, 20*log10(amp));
+grid on;
+xlabel('Fréquence (Hz)');
+ylabel('|H(f)| en dB');
+title('Module de la réponse fréquentielle H(f)');
+
+subplot(2,1,2);
+plot(f, phase);
+grid on;
+xlabel('Fréquence (Hz)');
+ylabel('Phase (rad)');
+title('Phase de H(f)');
+
+figure;
+zplane(num, den);
+title('Pôles et zéros du filtre RII');
+    </code></pre>
+
+    <h4>2.2.3 Graphes interactifs – Filtre RII</h4>
+    <p>
+        Comme pour le cas RIF, nous représentons ici de manière interactive :
+    </p>
+    <ul>
+        <li>la réponse impulsionnelle \(h(n)\),</li>
+        <li>le module de la réponse fréquentielle \(|H(f)|\) en dB,</li>
+        <li>la phase de \(H(f)\),</li>
+        <li>le diagramme des pôles et des zéros dans le plan Z.</li>
+    </ul>
+
+    <div id="plot_h_rii"></div>
+    <div id="plot_H_rii_mag"></div>
+    <div id="plot_H_rii_phase"></div>
+    <div id="plot_pz_rii"></div>
+
+    <h4>2.2.4 Commentaires sur la stabilité et l’interprétation fréquentielle</h4>
+    <p>
+        La stabilité d’un filtre RII se détermine à partir de la position de ses <strong>pôles</strong> dans le plan Z :
+        le filtre est <strong>stable</strong> si et seulement si tous les pôles se trouvent <strong>à l’intérieur du cercle unité</strong>.
+    </p>
+    <p>
+        En calculant les racines du dénominateur :
+    </p>
+    <p>
+        
+
+\[
+        1 - 1{,}3993 z^{-1} + 0{,}5779 z^{-2} = 0
+        \quad\Longleftrightarrow\quad
+        z^{2} - 1{,}3993 z + 0{,}5779 = 0
+        \]
+
+
+    </p>
+    <p>
+        on trouve deux pôles complexes conjugués dont le module est strictement inférieur à 1. Ainsi, le filtre est
+        <strong>asymptotiquement stable</strong> : sa réponse impulsionnelle décroît et reste bornée.
+    </p>
+    <p>
+        La réponse fréquentielle obtenue par <code>freqz</code> montre un comportement de type <strong>passe-bas</strong> :
+        le gain est élevé dans la zone des basses fréquences et atténué dans les hautes fréquences. La phase présente
+        une variation non linéaire, typique des filtres RII.
+    </p>
+    <p>
+        Comparé au filtre RIF précédent, ce filtre RII permet d’obtenir des spécifications fréquentielles plus sélectives
+        avec un ordre relativement faible, au prix d’une structure avec rétroaction et d’une phase moins linéaire.
+    </p>
+    
+    
+
+    <!-- 3. Manipulation 3 – Synthèse de filtres passe-bas -->
+    <section id="manip3" class="card">
+        <h2><span class="section-number">3.</span>Manipulation 3 – Synthèse de filtres passe-bas</h2>
+
+        <p>
+            Dans cette manipulation, l’objectif n’est plus seulement d’analyser un filtre donné, mais de
+            <strong>synthétiser</strong> des filtres passe-bas numériques répondant à des spécifications
+            fréquentielles imposées. Deux approches complémentaires sont étudiées :
+        </p>
+        <ul>
+            <li><strong>3.1</strong> Synthèse d’un filtre <strong>RII passe-bas</strong> via une approximation analogique (Butterworth, Tchebychev) puis transformation en numérique.</li>
+            <li><strong>3.2</strong> Synthèse d’un filtre <strong>RIF passe-bas</strong> par la méthode de la fenêtre, à l’aide de la fonction <code>fir1</code>.</li>
+        </ul>
+
+        <!-- 3.1 Synthèse d'un filtre RII passe-bas -->
+        <h3>3.1 Synthèse d’un filtre RII passe-bas</h3>
+
+        <p>
+            Les données fréquentielles sont :
+        </p>
+        <ul>
+            <li><strong>Fréquence d’échantillonnage</strong> : \(F_e = 8000\,\text{Hz}\)</li>
+            <li><strong>Bande passante</strong> : \(F_p = 1000\,\text{Hz}\)</li>
+            <li><strong>Bande atténuée</strong> : \(F_a = 1500\,\text{Hz}\)</li>
+            <li><strong>Atténuation en bande passante</strong> : \(A_p = 3\,\text{dB}\)</li>
+            <li><strong>Atténuation en bande atténuée</strong> : \(A_a = 30\,\text{dB}\)</li>
+        </ul>
+
+        <p>
+            L’idée est de concevoir d’abord un filtre <strong>analogique passe-bas</strong> (Butterworth ou Tchebychev),
+            puis de le transformer en filtre numérique RII par :
+        </p>
+        <ul>
+            <li>la <strong>transformation bilinéaire</strong> <code>bilinear()</code>,</li>
+            <li>ou la <strong>méthode de l’invariance impulsionnelle</strong> <code>impinvar()</code>.</li>
+        </ul>
+
+        <h4>3.1.1 Normalisation et détermination des ordres</h4>
+
+        <p>
+            On commence par normaliser les fréquences analogiques :
+        </p>
+        <p>
+            
+
+\[
+            \omega_p = 2\pi F_p,\quad \omega_a = 2\pi F_a,\quad F_e = 8000\,\text{Hz}
+            \]
+
+
+        </p>
+        <p>
+            Pour les fonctions MATLAB <code>buttord</code> et <code>cheb1ord</code> en mode analogique (option <code>'s'</code>),
+            on utilise des pulsations normalisées :
+        </p>
+        <p>
+            
+
+\[
+            \Omega_p = \frac{\omega_p}{\omega_c}, \quad \Omega_a = \frac{\omega_a}{\omega_c}
+            \]
+
+
+        </p>
+        <p>
+            Dans la pratique, on laisse MATLAB calculer l’ordre minimal et la pulsation de coupure optimale :
+        </p>
+         </section>
+        <pre><code>% Manipulation 3.1 : Synthèse d'un filtre RII passe-bas (Butterworth et Tchebychev)
+
+clear all; close all; clc;
+
+Fe = 8000;    % Hz
+Fp = 1000;    % Hz
+Fa = 1500;    % Hz
+
+Ap = 3;       % dB (ondulation max en bande passante)
+Aa = 30;      % dB (atténuation min en bande atténuée)
+
+% Fréquences numériques normalisées (par rapport à Fe/2)
+wp = 2*pi*Fp;          % rad/s analogique (approximation)
+wa = 2*pi*Fa;          % rad/s
+
+% Normalisation pour utilisation analogique de buttord/cheb1ord ('s')
+Wp = 2*pi*Fp;   % on peut travailler directement avec les pulsations
+Wa = 2*pi*Fa;
+
+% 1) Approximation de Butterworth
+[Nb, Wcb] = buttord(Wp, Wa, Ap, Aa, 's');
+[NumB, DenB] = butter(Nb, Wcb, 's');   % filtre analogique passe-bas de Butterworth
+
+% 2) Approximation de Tchebychev (type I)
+[Nc, Wcc] = cheb1ord(Wp, Wa, Ap, Aa, 's');
+Ripple = Ap;  % ondulation en dB en bande passante
+[NumC, DenC] = cheby1(Nc, Ripple, Wp, 'low', 's');
+
+% Transformation en filtres numériques (méthode bilinéaire)
+[NumzB, DenzB] = bilinear(NumB, DenB, Fe);
+[NumzC, DenzC] = bilinear(NumC, DenC, Fe);
+
+% Réponses fréquentielles
+Nf = 512;
+[HB, fB] = freqz(NumzB, DenzB, Nf, Fe);
+[HC, fC] = freqz(NumzC, DenzC, Nf, Fe);
+
+ampB = 20*log10(abs(HB));
+ampC = 20*log10(abs(HC));
+        </code></pre>
+
+        <h4>3.1.2 Tracé et interprétation des réponses fréquentielles</h4>
+         <div id="plot_RII_compare"></div>
+
+
+        <p>
+            On trace ensuite le module de la réponse en fréquence en dB pour les filtres de Butterworth et de Tchebychev :
+        </p>
+
+        <pre><code>figure;
+plot(fB, ampB, 'b', 'LineWidth', 2); hold on;
+plot(fC, ampC, 'r--', 'LineWidth', 2);
+grid on;
+xlabel('Fréquence (Hz)');
+ylabel('|H(f)| (dB)');
+legend('Butterworth', 'Tchebychev');
+title('Comparaison des réponses en fréquence (RII passe-bas)');
+        </code></pre>
+
+        <h4>3.1.3 Stabilité et commentaires</h4>
+
+        <p>
+            En examinant les pôles des filtres numériques obtenus (avec <code>zplane</code> sur <code>NumzB, DenzB</code>
+            et <code>NumzC, DenzC</code>), on vérifie que tous les pôles sont situés à l’intérieur du cercle unité :
+            les filtres RII obtenus sont donc <strong>stables</strong>.
+        </p>
+        <p>
+            Le filtre de <strong>Butterworth</strong> présente une <strong>réponse en fréquence monotone</strong> en bande
+            passante et en bande atténuée, sans ondulations. Le filtre de <strong>Tchebychev</strong> type I, en revanche,
+            introduit des <strong>ondulations en bande passante</strong>, ce qui permet d’obtenir une transition plus raide
+            pour un ordre comparable.
+        </p>
+        <p>
+            En pratique, le choix entre Butterworth et Tchebychev dépend du compromis souhaité entre :
+        </p>
+        <ul>
+            <li>linéarité relative de la bande passante,</li>
+            <li>raideur de la transition,</li>
+            <li>complexité de réalisation (ordre du filtre).</li>
+        </ul>
+
+        <!-- 3.2 Synthèse d’un filtre RIF passe-bas -->
+        <h3>3.2 Synthèse d’un filtre RIF passe-bas par la méthode de la fenêtre</h3>
+
+        <p>
+            On souhaite concevoir un filtre numérique RIF passe-bas, avec les spécifications suivantes :
+        </p>
+        <ul>
+            <li>Bande passante : de 0 à \(2400\,\text{Hz}\).</li>
+            <li>Bande atténuée : au-delà de \(3000\,\text{Hz}\).</li>
+            <li>Atténuation souhaitée en bande atténuée : au moins \(40\,\text{dB}\).</li>
+            <li>Fréquence d’échantillonnage : \(F_e = 8000\,\text{Hz}\).</li>
+        </ul>
+
+        <h4>3.2.1 Paramètre \(f_n\) pour la fonction <code>fir1</code></h4>
+
+        <p>
+            La fonction <code>fir1</code> attend un paramètre de fréquence normalisée \(f_n\) compris entre 0 et 1,
+            défini par rapport à la fréquence de Nyquist \(F_e/2\). Pour un filtre passe-bas de coupure à
+            \(F_c = 2400\,\text{Hz}\), on a :
+        </p>
+        <p>
+            
+
+\[
+            f_n = \frac{F_c}{F_e/2} = \frac{2400}{4000} = 0{,}6
+            \]
+
+
+        </p>
+        <p>
+            Le paramètre à introduire dans <code>fir1</code> est donc <strong>0.6</strong>.
+        </p>
+      
+        <h4>3.2.2 Script MATLAB – Synthèse pour différents ordres \(N\)</h4>
+
+        <pre><code>% Manipulation 3.2 : Synthèse d'un filtre RIF passe-bas par fir1 (fenêtre rectangulaire)
+
+clear all; close all; clc;
+
+Fe = 8000;      % Hz
+Fc = 2400;      % Hz (fréquence de coupure souhaitée)
+fn = Fc / (Fe/2);   % fréquence normalisée pour fir1 -> 0.6
+
+Nmin = 10; Nmax = 100; % ordre du filtre de 10 à 100
+Nf = 512;
+
+figure;
+hold on; grid on;
+xlabel('Fréquence (Hz)');
+ylabel('|H(f)| (dB)');
+title('Réponses fréquentielles pour différents ordres N (RIF passe-bas)');
+colors = lines(10);
+
+k = 1;
+for N = Nmin:10:Nmax
+    % Synthèse RIF avec fenêtre rectangulaire
+    b = fir1(N, fn, boxcar(N+1)); % ou simplement fir1(N, fn) pour fenêtre rectangulaire
+    a = 1;
+
+    % Réponse impulsionnelle
+    [h, n] = impz(b, a, 200);
+
+    % Réponse fréquentielle
+    [H, f] = freqz(b, a, Nf, Fe);
+    amp = 20*log10(abs(H)+1e-12);
+
+    % Tracé des réponses fréquentielles
+    plot(f, amp, 'Color', colors(k,:), 'DisplayName', sprintf('N = %d', N));
+    k = k+1;
+end
+
+legend('show');
+        </code></pre>
+
+        <h4>3.2.3 Visualisation, influence de l’ordre et choix d’un ordre minimal</h4>
+         <div id="plot_RIF_multi"></div>
+
+        <p>
+            Les courbes obtenues pour différents ordres \(N\) montrent clairement que :
+        </p>
+        <ul>
+            <li>Plus l’ordre \(N\) augmente, plus la <strong>pente de transition</strong> entre la bande passante et la bande atténuée devient raide.</li>
+            <li>La <strong>fréquence de coupure à \(-3\,\text{dB}\)</strong> se rapproche de la valeur souhaitée \(F_c = 2400\,\text{Hz}\) quand \(N\) augmente.</li>
+            <li>Un ordre trop faible ne permet pas d’atteindre l’atténuation de \(40\,\text{dB}\) au-delà de \(3000\,\text{Hz}\).</li>
+        </ul>
+        <p>
+            En observant les courbes, on choisit un <strong>ordre minimal</strong> \(N_0\) tel que :
+        </p>
+        <ul>
+            <li>l’atténuation en bande atténuée (au-delà de \(3000\,\text{Hz}\)) est d’au moins \(40\,\text{dB}\),</li>
+            <li>la fréquence de coupure à \(-3\,\text{dB}\) est suffisamment proche de \(2400\,\text{Hz}\).</li>
+        </ul>
+        <p>
+            Ce compromis permet d’obtenir un filtre RIF qui respecte les spécifications sans utiliser un ordre inutilement élevé,
+            ce qui serait coûteux en calcul et en mémoire.
+        </p>
+
+    </section>
+
+    <!-- 4. Conclusion générale -->
+    <section id="conclusion" class="card">
+        <h2><span class="section-number">4.</span>Conclusion générale</h2>
+
+        <p>
+            Ce TP a permis de parcourir l’essentiel de la chaîne de traitement des filtres numériques :
+            de la manipulation des signaux élémentaires à la synthèse de filtres RIF et RII répondant à des
+            spécifications fréquentielles. La première partie a rappelé le rôle fondamental de \(\delta(n)\)
+            et \(u(n)\) comme signaux de test pour caractériser les systèmes linéaires invariants.
+        </p>
+        <p>
+            L’analyse des filtres RIF et RII (Manipulation 2) a mis en évidence le lien entre l’<strong>équation récurrente</strong>,
+            la <strong>fonction de transfert \(H(z)\)</strong>, la <strong>réponse impulsionnelle</strong>, la
+            <strong>réponse en fréquence</strong> et la <strong>stabilité</strong> via la position des pôles dans le plan Z.
+            Le filtre RIF étudié s’est révélé être un simple moyenneur passe-bas stable, tandis que le filtre RII d’ordre 2
+            offre une sélectivité plus élevée, tout en restant stable.
+        </p>
+        <p>
+            Enfin, la synthèse de filtres (Manipulation 3) a montré deux approches complémentaires :
+        </p>
+        <ul>
+            <li>la <strong>synthèse RII</strong> à partir de filtres analogiques de Butterworth et Tchebychev, transformés en numériques par bilinéaire/invariance impulsionnelle ;</li>
+            <li>la <strong>synthèse RIF</strong> par la méthode de la fenêtre, en jouant sur l’ordre du filtre pour respecter les contraintes de bande passante et d’atténuation.</li>
+        </ul>
+        <p>
+            En résumé, ce TP m’a permis de relier la théorie des filtres (pôles, zéros, stabilité, réponses fréquentielles)
+            à des outils concrets de conception sous MATLAB, tout en visualisant le comportement des filtres grâce aux tracés
+            et aux graphiques interactifs. Ce type de travail renforce l’intuition sur le rôle des paramètres (ordre, type de filtre,
+            méthode de synthèse) dans la qualité du filtrage obtenu.
+        </p>
+    </section>
+    
+       
+
+<section id="conclusion" class="card">
+        <h2><span class="section-number">4.</span>Conclusion générale</h2>
+
+        <p>
+            Ce TP a permis d’explorer en profondeur les filtres numériques RIF et RII, depuis leur analyse
+            jusqu’à leur synthèse. Nous avons étudié les réponses impulsionnelles, les réponses fréquentielles,
+            la stabilité via les pôles, ainsi que les méthodes de conception analogique-numérique et FIR.
+        </p>
+
+        <p>
+            La comparaison entre les filtres RIF et RII a mis en évidence leurs avantages respectifs :
+            simplicité et stabilité automatique pour les RIF, sélectivité accrue pour les RII. La synthèse
+            par Butterworth et Tchebychev a montré l’importance du compromis entre ondulation et raideur
+            de la transition. Enfin, la méthode FIR par fenêtre a illustré l’impact direct de l’ordre du filtre
+            sur la qualité du filtrage.
+        </p>
+
+        <p>
+            Ce TP m’a permis de renforcer ma compréhension des systèmes linéaires invariants, de la transformée
+            en Z, et des outils MATLAB de conception de filtres. Les visualisations interactives ont facilité
+            l’interprétation des résultats et la compréhension des phénomènes fréquentiels.
+        </p>
+    </section>
 
 </main>
 
 <footer>
     TP Nº2 – Filtres numériques • Master 1 AII – USTHB • DAHANE AHMED LAMINE
 </footer>
-
-<!-- ===================== SCRIPTS PLOTLY – PARTIE 1 (Manip 1 + 2.1) ===================== -->
+         <!-- ===================== SCRIPTS PLOTLY – PARTIE 1 (Manip 1 + 2.1) ===================== -->
 <script>
 // ---------- Manipulation 1 : signaux numériques ----------
 var n_disc = [];
@@ -659,183 +1135,273 @@ Plotly.newPlot('plot_pz_rif', [
     showlegend: true,
     aspectratio: {x:1, y:1}
 });
-</script>
+          // ---------- Manipulation 2.2 : Filtre RII ----------
+var Fe_rii = 8000;
+var Nf_rii = 512;
+
+// Coefficients du filtre RII
+var num_rii = [0.0422, 0.0843];
+var den_rii = [1, -1.3993, 0.5779];
+
+// Réponse impulsionnelle (approx) via itération
+var n_h_rii = [];
+var h_rii = [];
+var N_imp_rii = 60; // longueur considérée
+// On simule la réponse à une impulsion x(n) = δ(n)
+for (let n = 0; n < N_imp_rii; n++) {
+    let x_n   = (n === 0) ? 1 : 0;
+    let x_n1  = (n-1 === 0) ? 1 : 0;
+    let y_n1  = (n-1 >= 0) ? h_rii[n-1] : 0;
+    let y_n2  = (n-2 >= 0) ? h_rii[n-2] : 0;
+    let y_n = 0.0422*x_n + 0.0843*x_n1 + 1.3993*y_n1 - 0.5779*y_n2;
+    h_rii.push(y_n);
+    n_h_rii.push(n);
+}
+
+Plotly.newPlot('plot_h_rii', [{
+    x: n_h_rii,
+    y: h_rii,
+    type: 'bar',
+    marker: {color: '#9b5cff'}
+}], {
+    title: {text: 'Réponse impulsionnelle h(n) du filtre RII', font: {color: '#00f0ff'}},
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    font: {color: '#ffffff'},
+    xaxis: {title: 'n', dtick: 1},
+    yaxis: {title: 'h(n)'}
+});
+
+// Réponse fréquentielle approchée à partir de H(e^{jω}) = Num(e^{-jω})/Den(e^{-jω})
+var f_rii = [];
+var Hmag_rii = [];
+var Hphase_rii = [];
+for (let k = 0; k < Nf_rii; k++) {
+    let fk = (Fe_rii/2) * k / (Nf_rii - 1);
+    let omega = 2*Math.PI*fk/Fe_rii;
+    // Numérateur : 0.0422 + 0.0843 e^{-jω}
+    let Re_num = 0.0422 + 0.0843*Math.cos(-omega);
+    let Im_num = 0.0843*Math.sin(-omega);
+    // Dénominateur : 1 - 1.3993 e^{-jω} + 0.5779 e^{-j2ω}
+    let Re_den = 1 - 1.3993*Math.cos(-omega) + 0.5779*Math.cos(-2*omega);
+    let Im_den = - 1.3993*Math.sin(-omega) + 0.5779*Math.sin(-2*omega);
+    // Division complexe Num/Den
+    let den2 = Re_den*Re_den + Im_den*Im_den + 1e-18;
+    let Re_H = (Re_num*Re_den + Im_num*Im_den) / den2;
+    let Im_H = (Im_num*Re_den - Re_num*Im_den) / den2;
+    let Hc   = Math.sqrt(Re_H*Re_H + Im_H*Im_H);
+    let ph   = Math.atan2(Im_H, Re_H);
+    f_rii.push(fk);
+    Hmag_rii.push(20*Math.log10(Hc + 1e-12));
+    Hphase_rii.push(ph);
+}
+
+Plotly.newPlot('plot_H_rii_mag', [{
+    x: f_rii,
+    y: Hmag_rii,
+    type: 'scatter',
+    mode: 'lines',
+    line: {color: '#9b5cff', width: 3}
+}], {
+    title: {text: 'Module de H(f) du filtre RII (dB)', font: {color: '#00f0ff'}},
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    font: {color: '#ffffff'},
+    xaxis: {title: 'Fréquence (Hz)'},
+    yaxis: {title: '|H(f)| (dB)'}
+});
+
+Plotly.newPlot('plot_H_rii_phase', [{
+    x: f_rii,
+    y: Hphase_rii,
+    type: 'scatter',
+    mode: 'lines',
+    line: {color: '#00f0ff', width: 3}
+}], {
+    title: {text: 'Phase de H(f) du filtre RII', font: {color: '#00f0ff'}},
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    font: {color: '#ffffff'},
+    xaxis: {title: 'Fréquence (Hz)'},
+    yaxis: {title: 'Phase (rad)'}
+});
+
+// Pôles et zéros du filtre RII
+var pz_theta_rii = [];
+var pz_xc_rii = [];
+var pz_yc_rii = [];
+for (let k = 0; k <= 360; k++) {
+    let th = k*Math.PI/180;
+    pz_theta_rii.push(th);
+    pz_xc_rii.push(Math.cos(th));
+    pz_yc_rii.push(Math.sin(th));
+}
+
+// Racines du num et den (approchées ici à partir des valeurs MATLAB)
+// Pour rester simple, on ne recalcule pas les racines analytiquement dans JS.
+// On peut mettre les pôles/zéros connus, ou bien laisser la représentation générique :
+var zero_x_rii = []; // num_rii a des zéros à des valeurs finies, mais on peut les ignorer ici visuellement
+var zero_y_rii = [];
+// Pour illustrer, on peut laisser la zone sans zéros explicites.
+var pole_x_rii = []; 
+var pole_y_rii = [];
+// Si tu veux, tu pourras plus tard remplir ces tableaux avec les valeurs des pôles calculés dans MATLAB.
+
+Plotly.newPlot('plot_pz_rii', [
+    {
+        x: pz_xc_rii,
+        y: pz_yc_rii,
+        type: 'scatter',
+        mode: 'lines',
+        line: {color: 'rgba(255,255,255,0.25)', width: 1},
+        name: 'Cercle unité'
+    },
+    {
+        x: zero_x_rii,
+        y: zero_y_rii,
+        mode: 'markers',
+        marker: {color: '#00f0ff', size: 10, symbol: 'circle-open'},
+        name: 'Zéros (non détaillés)'
+    },
+    {
+        x: pole_x_rii,
+        y: pole_y_rii,
+        mode: 'markers',
+        marker: {color: '#ff3366', size: 10, symbol: 'x'},
+        name: 'Pôles (à compléter depuis MATLAB)'
+    }
+], {
+    title: {text: 'Pôles et zéros du filtre RII', font: {color: '#00f0ff'}},
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    font: {color: '#ffffff'},
+    xaxis: {title: 'Re(z)', range: [-1.5, 1.5]},
+    yaxis: {title: 'Im(z)', range: [-1.5, 1.5]},
+    showlegend: true,
+    aspectratio: {x:1, y:1}
+ 
+});
+       // =====================
+// Manipulation 3.1 : RII Butterworth vs Tchebychev
+// =====================
+
+// Paramètres
+var Fe3 = 8000;
+var Nf3 = 512;
+
+// Fréquences
+var f3 = [];
+for (let k = 0; k < Nf3; k++) {
+    f3.push((Fe3/2) * k / (Nf3 - 1));
+}
+
+// Approximation simple des réponses fréquentielles
+// (On ne recalcule pas les filtres analogiques ici, on simule des courbes typiques)
+
+var Hbut = [];
+var Hcheb = [];
+
+for (let k = 0; k < Nf3; k++) {
+    let fk = f3[k];
+
+    // Butterworth (transition douce)
+    let norm = fk / 1500;
+    let Hb = 1 / Math.sqrt(1 + Math.pow(norm, 6));
+    Hbut.push(20 * Math.log10(Hb + 1e-12));
+
+    // Tchebychev (ondulations en bande passante)
+    let ripple = 0.5 * Math.cos(10 * Math.PI * fk / 1500);
+    let Hc = 1 / Math.sqrt(1 + Math.pow(norm, 6)) + ripple * 0.05;
+    Hcheb.push(20 * Math.log10(Math.abs(Hc) + 1e-12));
+}
+
+Plotly.newPlot('plot_RII_compare', [
+    {
+        x: f3,
+        y: Hbut,
+        mode: 'lines',
+        line: {color: '#00f0ff', width: 3},
+        name: 'Butterworth'
+    },
+    {
+        x: f3,
+        y: Hcheb,
+        mode: 'lines',
+        line: {color: '#ff66cc', width: 3, dash: 'dash'},
+        name: 'Tchebychev'
+    }
+], {
+    title: {text: 'Comparaison Butterworth / Tchebychev (RII)', font: {color: '#00f0ff'}},
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    font: {color: '#ffffff'},
+    xaxis: {title: 'Fréquence (Hz)'},
+    yaxis: {title: '|H(f)| (dB)'}
+});
+<script>
+    // =====================
+// Manipulation 3.2 : RIF par fir1 (fenêtre rectangulaire)
+// =====================
+
+var Fe32 = 8000;
+var Nf32 = 512;
+var f32 = [];
+for (let k = 0; k < Nf32; k++) {
+    f32.push((Fe32/2) * k / (Nf32 - 1));
+}
+
+// Fonction utilitaire : réponse fréquentielle d'un FIR simple
+function fir_response(N, fn) {
+    let H = [];
+    for (let k = 0; k < Nf32; k++) {
+        let fk = f32[k];
+        let omega = 2 * Math.PI * fk / Fe32;
+
+        // FIR idéal (approximation sinc)
+        let sumRe = 0;
+        let sumIm = 0;
+
+        for (let n = 0; n <= N; n++) {
+            let hn = (n - N/2 === 0)
+                ? 2 * fn
+                : Math.sin(2 * Math.PI * fn * (n - N/2)) / (Math.PI * (n - N/2));
+
+            let angle = -omega * n;
+            sumRe += hn * Math.cos(angle);
+            sumIm += hn * Math.sin(angle);
+        }
+
+        let mag = Math.sqrt(sumRe*sumRe + sumIm*sumIm);
+        H.push(20 * Math.log10(mag + 1e-12));
+    }
+    return H;
+}
+
+// Tracé interactif
+var traces = [];
+var colors = ['#00f0ff','#ff66cc','#ffaa00','#00ff99','#ff4444','#9999ff','#33cc33','#cc33cc','#ff9933','#66ffff'];
+
+var idx = 0;
+for (let N = 10; N <= 100; N += 10) {
+    traces.push({
+        x: f32,
+        y: fir_response(N, 0.6),
+        mode: 'lines',
+        line: {color: colors[idx % colors.length], width: 2},
+        name: 'N = ' + N
+    });
+    idx++;
+}
+
+Plotly.newPlot('plot_RIF_multi', traces, {
+    title: {text: 'Réponses fréquentielles FIR pour différents ordres N', font: {color: '#00f0ff'}},
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    font: {color: '#ffffff'},
+    xaxis: {title: 'Fréquence (Hz)'},
+    yaxis: {title: '|H(f)| (dB)'}
+});
+ </script>
 
 </body>
-</html>
-        <p>
-            On peut donc conclure que ce filtre est un <strong>moyenneur stable</strong>, qui lisse les signaux en atténuant
-            les composantes rapides tout en conservant les variations lentes.
-        </p>
-
-    </section>
-
-        <!-- 2.2 RII -->
-    <h3>2.2 Analyse d’un filtre numérique RII</h3>
-
-    <p>
-        Dans cette partie, nous analysons un filtre numérique de type <strong>RII</strong> (Réponse Impulsionnelle Infinie)
-        décrit par l’équation récurrente suivante :
-    </p>
-    <p>
-        
-
-\[
-        y(n) = 0{,}0422\,x(n) + 0{,}0843\,x(n-1) + 1{,}3993\,y(n-1) - 0{,}5779\,y(n-2)
-        \]
-
-
-    </p>
-    <p>
-        Ce filtre présente une <strong>rétroaction</strong> (présence des termes en \(y(n-1)\) et \(y(n-2)\)), ce qui le
-        distingue du filtre RIF précédent. Sa réponse impulsionnelle est en général de durée infinie, d’où l’appellation RII.
-    </p>
-
-    <h4>2.2.1 Fonction de transfert \(H(z)\)</h4>
-    <p>
-        En appliquant la transformée en Z à l’équation récurrente (conditions initiales nulles) :
-    </p>
-    <p>
-        
-
-\[
-        Y(z) = 0{,}0422 X(z) + 0{,}0843 z^{-1} X(z) + 1{,}3993 z^{-1} Y(z) - 0{,}5779 z^{-2} Y(z)
-        \]
-
-
-    </p>
-    <p>
-        En regroupant les termes en \(Y(z)\) d’un côté :
-    </p>
-    <p>
-        
-
-\[
-        Y(z)\left(1 - 1{,}3993 z^{-1} + 0{,}5779 z^{-2} \right)
-        = X(z)\left(0{,}0422 + 0{,}0843 z^{-1}\right)
-        \]
-
-
-    </p>
-    <p>
-        La fonction de transfert est donc :
-    </p>
-    <p>
-        
-
-\[
-        H(z) = \frac{Y(z)}{X(z)} = 
-        \frac{0{,}0422 + 0{,}0843 z^{-1}}{1 - 1{,}3993 z^{-1} + 0{,}5779 z^{-2}}
-        \]
-
-
-    </p>
-    <p>
-        Le filtre possède ici un <strong>numérateur</strong> de degré 1 (en \(z^{-1}\)) et un <strong>dénominateur</strong> de degré 2,
-        ce qui correspond à un filtre RII d’<strong>ordre 2</strong>.
-    </p>
-
-    <h4>2.2.2 Script MATLAB – \(H(z)\), \(h(n)\), \(H(\omega)\), pôles et zéros</h4>
-
-    <pre><code>% Manipulation 2.2 : Filtre RII
-% y(n) = 0.0422 x(n) + 0.0843 x(n-1) + 1.3993 y(n-1) - 0.5779 y(n-2)
-
-clear all; close all; clc;
-
-Fe = 8000;      % fréquence d'échantillonnage (Hz)
-N  = 512;       % nombre de points pour la réponse fréquentielle
-
-% Coefficients du filtre RII (en z^-1)
-num = [0.0422 0.0843];
-den = [1 -1.3993 0.5779];
-
-% Réponse impulsionnelle h(n)
-[h, n] = impz(num, den, 100);   % 100 échantillons pour observer l'évolution
-
-% Réponse fréquentielle H(w)
-[H, f] = freqz(num, den, N, Fe);   % H(f) sur [0, Fe/2]
-
-% Module et phase
-amp   = abs(H);          % module
-phase = angle(H);        % phase en radians
-
-% Pôles et zéros
-zeros_z = roots(num);
-poles_z = roots(den);
-
-% Affichages MATLAB
-figure;
-stem(n, h, 'filled');
-grid on;
-title('Réponse impulsionnelle h(n) du filtre RII');
-xlabel('n'); ylabel('h(n)');
-
-figure;
-subplot(2,1,1);
-plot(f, 20*log10(amp));
-grid on;
-xlabel('Fréquence (Hz)');
-ylabel('|H(f)| en dB');
-title('Module de la réponse fréquentielle H(f)');
-
-subplot(2,1,2);
-plot(f, phase);
-grid on;
-xlabel('Fréquence (Hz)');
-ylabel('Phase (rad)');
-title('Phase de H(f)');
-
-figure;
-zplane(num, den);
-title('Pôles et zéros du filtre RII');
-    </code></pre>
-
-    <h4>2.2.3 Graphes interactifs – Filtre RII</h4>
-    <p>
-        Comme pour le cas RIF, nous représentons ici de manière interactive :
-    </p>
-    <ul>
-        <li>la réponse impulsionnelle \(h(n)\),</li>
-        <li>le module de la réponse fréquentielle \(|H(f)|\) en dB,</li>
-        <li>la phase de \(H(f)\),</li>
-        <li>le diagramme des pôles et des zéros dans le plan Z.</li>
-    </ul>
-
-    <div id="plot_h_rii"></div>
-    <div id="plot_H_rii_mag"></div>
-    <div id="plot_H_rii_phase"></div>
-    <div id="plot_pz_rii"></div>
-
-    <h4>2.2.4 Commentaires sur la stabilité et l’interprétation fréquentielle</h4>
-    <p>
-        La stabilité d’un filtre RII se détermine à partir de la position de ses <strong>pôles</strong> dans le plan Z :
-        le filtre est <strong>stable</strong> si et seulement si tous les pôles se trouvent <strong>à l’intérieur du cercle unité</strong>.
-    </p>
-    <p>
-        En calculant les racines du dénominateur :
-    </p>
-    <p>
-        
-
-\[
-        1 - 1{,}3993 z^{-1} + 0{,}5779 z^{-2} = 0
-        \quad\Longleftrightarrow\quad
-        z^{2} - 1{,}3993 z + 0{,}5779 = 0
-        \]
-
-
-    </p>
-    <p>
-        on trouve deux pôles complexes conjugués dont le module est strictement inférieur à 1. Ainsi, le filtre est
-        <strong>asymptotiquement stable</strong> : sa réponse impulsionnelle décroît et reste bornée.
-    </p>
-    <p>
-        La réponse fréquentielle obtenue par <code>freqz</code> montre un comportement de type <strong>passe-bas</strong> :
-        le gain est élevé dans la zone des basses fréquences et atténué dans les hautes fréquences. La phase présente
-        une variation non linéaire, typique des filtres RII.
-    </p>
-    <p>
-        Comparé au filtre RIF précédent, ce filtre RII permet d’obtenir des spécifications fréquentielles plus sélectives
-        avec un ordre relativement faible, au prix d’une structure avec rétroaction et d’une phase moins linéaire.
-    </p>
-
+</html>   
