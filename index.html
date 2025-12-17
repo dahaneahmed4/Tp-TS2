@@ -19,8 +19,7 @@
             src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
     </script>
 
-    <!-- Plotly.js pour graphiques interactifs -->
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         :root {
@@ -267,16 +266,12 @@ title('u(n-1)');
 xlabel('n'); ylabel('Amplitude');
         </code></pre>
 
-        <h3>1.2 Graphes interactifs – \(\delta(n)\), \(\delta(n-1)\), \(u(n)\), \(u(n-1)\)</h3>
-        <p>
-            Les graphiques suivants permettent de visualiser de manière interactive les signaux utilisés comme briques
-            de base pour exciter les filtres numériques.
-        </p>
+      <h3>1.2 Graphes – δ(n), δ(n−1), u(n), u(n−1)</h3>
 
-        <div id="plot_delta"></div>
-        <div id="plot_delta1"></div>
-        <div id="plot_u"></div>
-        <div id="plot_u1"></div>
+<canvas id="delta_n" width="400" height="200"></canvas>
+<canvas id="delta_n1" width="400" height="200"></canvas>
+<canvas id="u_n" width="400" height="200"></canvas>
+<canvas id="u_n1" width="400" height="200"></canvas>
 
         <h3>1.3 Commentaires et observations</h3>
         <ul>
@@ -956,72 +951,66 @@ legend('show');
          <!-- ===================== SCRIPTS PLOTLY – PARTIE 1 (Manip 1 + 2.1) ===================== -->
 <script>
 // ---------- Manipulation 1 : signaux numériques ----------
-var n_disc = [];
-for (let k = -5; k <= 5; k++) { n_disc.push(k); }
+<script>
+  // Axes n
+  const n = [-5,-4,-3,-2,-1,0,1,2,3,4,5];
 
-// delta(n)
-var delta = n_disc.map(k => (k === 0 ? 1 : 0));
-Plotly.newPlot('plot_delta', [{
-    x: n_disc,
-    y: delta,
-    type: 'bar',
-    marker: {color: '#9b5cff'}
-}], {
-    title: {text: 'Impulsion de Dirac \\u03B4(n)', font: {color: '#00f0ff'}},
-    paper_bgcolor: 'rgba(0,0,0,0)',
-    plot_bgcolor: 'rgba(0,0,0,0)',
-    font: {color: '#ffffff'},
-    xaxis: {title: 'n', dtick: 1},
-    yaxis: {title: 'Amplitude', range: [0, 1.2]}
-});
+  // δ(n)
+  const delta_n = n.map(k => k === 0 ? 1 : 0);
 
-// delta(n-1)
-var delta1 = n_disc.map(k => (k === 1 ? 1 : 0));
-Plotly.newPlot('plot_delta1', [{
-    x: n_disc,
-    y: delta1,
-    type: 'bar',
-    marker: {color: '#00f0ff'}
-}], {
-    title: {text: 'Impulsion décalée \\u03B4(n-1)', font: {color: '#00f0ff'}},
-    paper_bgcolor: 'rgba(0,0,0,0)',
-    plot_bgcolor: 'rgba(0,0,0,0)',
-    font: {color: '#ffffff'},
-    xaxis: {title: 'n', dtick: 1},
-    yaxis: {title: 'Amplitude', range: [0, 1.2]}
-});
+  // δ(n-1)
+  const delta_n1 = n.map(k => k === 1 ? 1 : 0);
 
-// u(n)
-var u = n_disc.map(k => (k >= 0 ? 1 : 0));
-Plotly.newPlot('plot_u', [{
-    x: n_disc,
-    y: u,
-    type: 'bar',
-    marker: {color: '#9b5cff'}
-}], {
-    title: {text: 'Échelon unitaire u(n)', font: {color: '#00f0ff'}},
-    paper_bgcolor: 'rgba(0,0,0,0)',
-    plot_bgcolor: 'rgba(0,0,0,0)',
-    font: {color: '#ffffff'},
-    xaxis: {title: 'n', dtick: 1},
-    yaxis: {title: 'Amplitude', range: [0, 1.2]}
-});
+  // u(n)
+  const u_n = n.map(k => k >= 0 ? 1 : 0);
 
-// u(n-1)
-var u1 = n_disc.map(k => (k >= 1 ? 1 : 0));
-Plotly.newPlot('plot_u1', [{
-    x: n_disc,
-    y: u1,
-    type: 'bar',
-    marker: {color: '#00f0ff'}
-}], {
-    title: {text: 'Échelon décalé u(n-1)', font: {color: '#00f0ff'}},
-    paper_bgcolor: 'rgba(0,0,0,0)',
-    plot_bgcolor: 'rgba(0,0,0,0)',
-    font: {color: '#ffffff'},
-    xaxis: {title: 'n', dtick: 1},
-    yaxis: {title: 'Amplitude', range: [0, 1.2]}
-});
+  // u(n-1)
+  const u_n1 = n.map(k => k >= 1 ? 1 : 0);
+
+  function createStemChart(canvasId, labels, data, title) {
+    const ctx = document.getElementById(canvasId).getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: title,
+          data: data,
+          backgroundColor: 'rgba(52, 152, 219, 0.8)',
+          borderColor: 'rgba(41, 128, 185, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        plugins: {
+          legend: { display: false },
+          title: {
+            display: true,
+            text: title,
+            color: '#fff'
+          }
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { color: '#fff' }
+          },
+          y: {
+            beginAtZero: true,
+            ticks: { stepSize: 1, color: '#fff' },
+            grid: { color: 'rgba(255,255,255,0.1)' }
+          }
+        }
+      }
+    });
+  }
+
+  // Création des 4 graphes
+  createStemChart('delta_n', n, delta_n, 'δ(n)');
+  createStemChart('delta_n1', n, delta_n1, 'δ(n−1)');
+  createStemChart('u_n', n, u_n, 'u(n)');
+  createStemChart('u_n1', n, u_n1, 'u(n−1)');
+</script>
 
 // ---------- Manipulation 2.1 : Filtre RIF ----------
 var n_h_rif = [0, 1];
