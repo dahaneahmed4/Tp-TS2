@@ -228,7 +228,7 @@
 clear all; close all; clc;
 
 % Axe des instants discrets
-n = -5:5;
+n = -10:10;
 
 % Impulsion de Dirac delta(n)
 delta = (n == 0);
@@ -362,51 +362,47 @@ xlabel('n'); ylabel('Amplitude');
 
 clear all; close all; clc;
 
-Fe = 8000;      % fréquence d'échantillonnage (Hz)
-N  = 512;       % nombre de points pour la réponse fréquentielle
+a = 0.5;                 % coefficient
+b = [a a];               % numérateur : 0.5 + 0.5 z^-1
+a_den = 1;               % dénominateur : 1 (pas de rétroaction)
 
-% Coefficients du filtre RIF (en z^-1)
-num = [0.5 0.5];   % numérateur H(z) = 0.5 + 0.5 z^{-1}
-den = [1];         % dénominateur (aucune rétroaction)
+n = 0:20;                % axe temporel choisi par le professeur
+Fe = 8000;               % fréquence d'échantillonnage
 
-% Réponse impulsionnelle h(n)
-[h, n] = impz(num, den, 50);   % 50 échantillons de h(n)
+% Fonction de transfert H(z) en z^-1
+H = tf(b, a_den, 1/Fe, 'variable', 'z^-1')
 
-% Réponse fréquentielle H(w)
-[H, f] = freqz(num, den, N, Fe);   % H(f) sur [0, Fe/2]
+% Réponse impulsionnelle
+h = impz(b, a_den, n);
 
-% Module et phase
-amp   = abs(H);          % module
-phase = angle(H);        % phase en radians
-
-% Pôles et zéros
-zeros_z = roots(num);
-poles_z = roots(den);
-
-% Affichages MATLAB classiques
-figure;
+figure(2);
 stem(n, h, 'filled');
 grid on;
-title('Réponse impulsionnelle h(n) du filtre RIF');
 xlabel('n'); ylabel('h(n)');
+title('Réponse impulsionnelle du filtre RIF');
 
-figure;
+% Réponse fréquentielle
+N = 512;
+[Hf, f] = freqz(b, a_den, N, Fe);
+
+figure(3);
 subplot(2,1,1);
-plot(f, 20*log10(amp));
+plot(f, 20*log10(abs(Hf)));
 grid on;
 xlabel('Fréquence (Hz)');
-ylabel('|H(f)| en dB');
-title('Module de la réponse fréquentielle H(f)');
+ylabel('|H(f)| (dB)');
+title('Module de H(f)');
 
 subplot(2,1,2);
-plot(f, phase);
+plot(f, angle(Hf));
 grid on;
 xlabel('Fréquence (Hz)');
 ylabel('Phase (rad)');
 title('Phase de H(f)');
 
-figure;
-zplane(num, den);
+% Pôles et zéros
+figure(4);
+zplane(b, a_den);
 title('Pôles et zéros du filtre RIF');
         </code></pre>
 
@@ -542,43 +538,35 @@ title('Pôles et zéros du filtre RIF');
     <pre><code>% Manipulation 2.2 : Filtre RII
 % y(n) = 0.0422 x(n) + 0.0843 x(n-1) + 1.3993 y(n-1) - 0.5779 y(n-2)
 
-clear all; close all; clc;
+Fe = 8000;
+N  = 512;
 
-Fe = 8000;      % fréquence d'échantillonnage (Hz)
-N  = 512;       % nombre de points pour la réponse fréquentielle
-
-% Coefficients du filtre RII (en z^-1)
 num = [0.0422 0.0843];
 den = [1 -1.3993 0.5779];
 
-% Réponse impulsionnelle h(n)
-[h, n] = impz(num, den, 100);   % 100 échantillons pour observer l'évolution
+[h, n] = impz(num, den, 100);
 
-% Réponse fréquentielle H(w)
-[H, f] = freqz(num, den, N, Fe);   % H(f) sur [0, Fe/2]
+[H, f] = freqz(num, den, N, Fe);
 
-% Module et phase
-amp   = abs(H);          % module
-phase = angle(H);        % phase en radians
+amp   = abs(H);
+phase = angle(H);
 
-% Pôles et zéros
 zeros_z = roots(num);
 poles_z = roots(den);
 
-% Affichages MATLAB
-figure;
+figure(5);
 stem(n, h, 'filled');
 grid on;
 title('Réponse impulsionnelle h(n) du filtre RII');
 xlabel('n'); ylabel('h(n)');
 
-figure;
+figure(6);
 subplot(2,1,1);
 plot(f, 20*log10(amp));
 grid on;
 xlabel('Fréquence (Hz)');
 ylabel('|H(f)| en dB');
-title('Module de la réponse fréquentielle H(f)');
+title('Module de H(f)');
 
 subplot(2,1,2);
 plot(f, phase);
@@ -587,9 +575,10 @@ xlabel('Fréquence (Hz)');
 ylabel('Phase (rad)');
 title('Phase de H(f)');
 
-figure;
+figure(7);
 zplane(num, den);
 title('Pôles et zéros du filtre RII');
+
     </code></pre>
 
     <h4>2.2.3 Graphes interactifs – Filtre RII</h4>
@@ -750,6 +739,34 @@ Nf = 512;
 
 ampB = 20*log10(abs(HB));
 ampC = 20*log10(abs(HC));
+            
+ %% Transformation par invariance impulsionnelle 
+
+% Butterworth numérique (invariance impulsionnelle)
+[NumzB_imp, DenzB_imp] = impinvar(NumB, DenB, Fe);
+
+% Tchebychev numérique (invariance impulsionnelle)
+[NumzC_imp, DenzC_imp] = impinvar(NumC, DenC, Fe);
+
+% Réponses fréquentielles
+[HB_imp, fB_imp] = freqz(NumzB_imp, DenzB_imp, 512, Fe);
+[HC_imp, fC_imp] = freqz(NumzC_imp, DenzC_imp, 512, Fe);
+
+% Tracé Butterworth (impinvar)
+figure(8);
+plot(fB_imp, 20*log10(abs(HB_imp)), 'LineWidth', 1.5);
+grid on;
+title('Butterworth numérique (Invariance impulsionnelle)');
+xlabel('Fréquence (Hz)');
+ylabel('|H(f)| (dB)');
+
+% Tracé Tchebychev (impinvar)
+figure(9);
+plot(fC_imp, 20*log10(abs(HC_imp)), 'LineWidth', 1.5);
+grid on;
+title('Tchebychev numérique (Invariance impulsionnelle)');
+xlabel('Fréquence (Hz)');
+ylabel('|H(f)| (dB)');           
         </code></pre>
 
         <h4>3.1.2 Tracé et interprétation des réponses fréquentielles</h4>
